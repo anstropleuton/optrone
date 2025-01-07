@@ -1,6 +1,6 @@
 /**
  *  @author  Anstro Pleuton (https://github.com/anstropleuton)
- *  @brief   The main header file for the testing framework.
+ *  @brief   Test Optrone.
  *
  *  @copyright  Copyright (c) 2024 Anstro Pleuton
  *
@@ -43,17 +43,195 @@
 #include "confer.hpp"
 
 /**
- *  @brief  Yes, a literal test the tester.
+ *  @brief  Test 0: No arguments test.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_0);
+
+/**
+ *  @brief  Test 1: Option recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_1);
+
+/**
+ *  @brief  Test 2: Subcommand recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_2);
+
+/**
+ *  @brief  Test 3: Nested subcommand recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_3);
+
+/**
+ *  @brief  Test 4: Nested option recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_4);
+
+/**
+ *  @brief  Test 5: Option parameter recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_5);
+
+/**
+ *  @brief  Test 6: Subcommand parameter recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_6);
+
+/**
+ *  @brief  Test 7: Option parameter with defaults recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_7);
+
+/**
+ *  @brief  Test 8: Subcommand parameter with defaults recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_8);
+
+/**
+ *  @brief  Test 9: Argument split tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_9);
+
+/**
+ *  @brief  Test 10: Variadic parameter recognition tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_10);
+
+/**
+ *  @brief  Test 11: Throw tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_11);
+
+/**
+ *  @brief  Test 12: Misc. edge case tests.
+ *  @return  Number of errors.
+ */
+[[nodiscard]] CT_TESTER_FN(test_12);
+
+/**
+ *  @brief  Test Optrone.
  *  @return  Zero on success.
  */
-auto main() -> int try
+auto main() -> int
 {
-    // ... pending
-    // there isn't much to do here ...
-    // what? test the formatting functions?
-    // maybe...
-    // yea I'll do it later.
-}
-catch(const std::exception &e)
-{
+    test_suite suite;
+    suite.pre_run  = default_pre_runner('=', 5);
+    suite.post_run = default_post_runner('=', 5);
+    // suite.run_failed = default_run_failed_quitter();
+
+    // Scary memory management
+
+    suite.tests.emplace_back(new test {
+        "Test 0: No arguments test",
+        "test_0",
+        test_0
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 1: Option recognition tests",
+        "test_1",
+        test_1
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 2: Subcommand recognition tests",
+        "test_2",
+        test_2
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 3: Nested subcommand recognition tests",
+        "test_3",
+        test_3
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 4: Nested option recognition tests",
+        "test_4",
+        test_4
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 5: Option parameter recognition tests",
+        "test_5",
+        test_5
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 6: Subcommand parameter recognition tests",
+        "test_6",
+        test_6
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 7: Option parameter with defaults recognition tests",
+        "test_7",
+        test_7
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 8: Subcommand parameter with defaults recognition tests",
+        "test_8",
+        test_8
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 9: Argument split tests",
+        "test_9",
+        test_9
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 10: Variadic parameter recognition tests",
+        "test_10",
+        test_10
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 11: Throw tests",
+        "test_11",
+        test_11
+    });
+
+    suite.tests.emplace_back(new test {
+        "Test 12: Misc. edge case tests",
+        "test_12",
+        test_12
+    });
+
+    std::size_t errors = (std::size_t)-1;
+    try
+    {
+        auto failed_tests = suite.run();
+
+        print_failed_tests(failed_tests);
+        errors = sum_failed_tests_errors(failed_tests);
+    }
+    catch (const std::exception &e)
+    {
+        logln("Exception occurred during test: {}", e.what());
+    }
+    catch (...)
+    {
+        logln("Unknown exception occurred during test");
+    }
+
+    for (auto &test : suite.tests)
+    {
+        delete test;
+    }
+
+    return errors;
 }

@@ -38,7 +38,7 @@
  *    "Standard".
  */
 
-#include "test_header.hpp"
+#include "test_helper.hpp"
 
 /**
  *  @brief  Test 8: Subcommand parameter with defaults recognition tests.

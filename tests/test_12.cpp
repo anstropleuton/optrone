@@ -40,7 +40,7 @@
 
 #include <vector>
 
-#include "test_header.hpp"
+#include "test_helper.hpp"
 
 /**
  *  @brief  Test 12: Misc. edge case tests.

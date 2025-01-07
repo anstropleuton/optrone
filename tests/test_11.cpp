@@ -40,7 +40,7 @@
 
 #include <stdexcept>
 
-#include "test_header.hpp"
+#include "test_helper.hpp"
 
 /**
  *  @brief  Test 11: Throw tests.

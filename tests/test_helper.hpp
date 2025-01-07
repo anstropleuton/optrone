@@ -1,6 +1,6 @@
 /**
  *  @author  Anstro Pleuton (https://github.com/anstropleuton)
- *  @brief   Test all of Argument Parser in Alcelin.
+ *  @brief   Helpers to test Optrone.
  *
  *  @copyright  Copyright (c) 2024 Anstro Pleuton
  *
@@ -377,10 +377,9 @@ static inline constexpr auto run_combo(
 
     auto parsed = o::parse_arguments(args, options, subcommands);
 
-    logln("args: {}",      sm::to_string(args));
-    logln("parsed:\n{}\n", sm::to_string(parsed, arg_to_string, "\n"));
-    logln("expected:\n{}\n",
-        sm::to_string(expected, arg_to_string, "\n"));
+    logln("args: {}",        sm::to_string(args));
+    logln("parsed:\n{}\n",   sm::to_string(parsed, arg_to_string, "\n"));
+    logln("expected:\n{}\n", sm::to_string(expected, arg_to_string, "\n"));
 
     CT_ASSERT_CTR(parsed, expected);
 

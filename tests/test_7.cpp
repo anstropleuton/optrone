@@ -38,7 +38,7 @@
  *    "Standard".
  */
 
-#include "test_header.hpp"
+#include "test_helper.hpp"
 
 /**
  *  @brief  Test 7: Option parameter with defaults recognition tests.
