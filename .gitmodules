@@ -1,0 +1,6 @@
+[submodule "deps/alcelin"]
+	path = deps/alcelin
+	url = /media/me/storage/projects/alcelin
+[submodule "deps/confer"]
+	path = deps/confer
+	url = /media/me/storage/projects/confer

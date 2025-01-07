@@ -1,0 +1,23 @@
+# Doxyfile 1.13.1
+
+PROJECT_NAME           = "@PROJECT_NAME@"
+PROJECT_NUMBER         = @PROJECT_VERSION@
+PROJECT_BRIEF          = "@PROJECT_DESCRIPTION@"
+PROJECT_LOGO           = favicon.ico
+PROJECT_ICON           = favicon.ico
+
+OUTPUT_DIRECTORY       = @DOXYGEN_OUTPUT_DIR@
+INPUT                  = ../include ../Changelog.md ../Guidelines.md ../License.md ../Readme.md
+USE_MDFILE_AS_MAINPAGE = ../Readme.md
+
+HTML_HEADER            = header.html
+HTML_FOOTER            = footer.html
+HTML_EXTRA_STYLESHEET  = ../docs/background.css ../docs/doxygen-awesome.css
+HTML_EXTRA_FILES       = ../docs/background.png ../docs/favicon.ico
+
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_COLORSTYLE        = AUTO_DARK
+HTML_DYNAMIC_SECTIONS  = YES
+GENERATE_LATEX         = NO
