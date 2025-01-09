@@ -1,0 +1,7 @@
+include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_targets.cmake)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/@PROJECT_NAME@_config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/@PROJECT_NAME@_config_version.cmake
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/@PROJECT_NAME@
+)

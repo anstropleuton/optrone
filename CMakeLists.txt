@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30)
 
 project(optrone
-    VERSION 1.0.0.0
+    VERSION 1.0.0.1
     DESCRIPTION "Optrone is a simple argument parser for Anstro Pleuton's programs."
     LANGUAGES CXX
 )
@@ -9,15 +9,10 @@ project(optrone
 option(OPTRONE_BUILD_TESTS "Build Optrone tests" OFF)
 option(OPTRONE_BUILD_EXAMPLES "Build Optrone examples" OFF)
 
-if(NOT DEFINED OPTRONE_CONFER_PATH)
-    set(OPTRONE_CONFER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/confer")
-endif()
-option(OPTRONE_FORCE_USE_CONFER_PATH "Force use Confer from subdirectory" OFF)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/depman.cmake")
 
-if(NOT DEFINED OPTRONE_ALCELIN_PATH)
-    set(OPTRONE_ALCELIN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/alcelin")
-endif()
-option(OPTRONE_FORCE_USE_ALCELIN_PATH "Force use Alcelin from subdirectory" OFF)
+depman_declare(confer "https://github.com/anstropleuton/confer" origin/main)
+depman_declare(alcelin "https://github.com/anstropleuton/alcelin" origin/main)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -27,10 +22,12 @@ set(DOXYGEN_OPTRONE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs")
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/optrone_config.hpp.in"
     "${CMAKE_CURRENT_BINARY_DIR}/optrone_config.hpp"
+    @ONLY
 )
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/optrone.pc.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/pkgconfig.pc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/optrone.pc"
+    @ONLY
 )
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in"
@@ -47,6 +44,26 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/footer.html"
     @ONLY
 )
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/optrone_config.cmake"
+    @ONLY
+)
+
+# Taken from GLFW
+# Only generate this target if no higher-level project already has
+if (NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY
+    )
+
+    add_custom_target(uninstall
+        "${CMAKE_COMMAND}" -P
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    )
+endif()
 
 set(OPTRONE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/optrone.cpp"
@@ -69,29 +86,11 @@ target_sources(optrone PUBLIC
     FILES ${OPTRONE_HEADERS}
 )
 
-find_package(alcelin QUIET)
-if(NOT alcelin_FOUND)
-    message("---> alcelin not found in system, adding subdirectory ${OPTRONE_ALCELIN_PATH}")
-    add_subdirectory(${OPTRONE_ALCELIN_PATH})
-elseif(OPTRONE_FORCE_USE_CONFER_PATH)
-    message("---> Force using subdirectory ${OPTRONE_ALCELIN_PATH} for alcelin")
-    add_subdirectory(${OPTRONE_ALCELIN_PATH})
-else()
-    message("---> alcelin found in system, using it instead")
-endif()
+depman_make_available(alcelin)
 target_link_libraries(optrone PUBLIC alcelin)
 
 if(OPTRONE_BUILD_TESTS)
-    find_package(confer QUIET)
-    if(NOT confer_FOUND)
-        message("---> confer not found in system, adding subdirectory ${OPTRONE_CONFER_PATH}")
-        add_subdirectory(${OPTRONE_CONFER_PATH})
-    elseif(OPTRONE_FORCE_USE_CONFER_PATH)
-        message("---> Force using subdirectory ${OPTRONE_CONFER_PATH} for confer")
-        add_subdirectory(${OPTRONE_CONFER_PATH})
-    else()
-        message("---> confer found in system, using it instead")
-    endif()
+    depman_make_available(confer)
     add_subdirectory(tests)
 endif()
 
@@ -122,18 +121,3 @@ install(
     NAMESPACE optrone::
     DESTINATION "${CMAKE_INSTALL_DATADIR}/optrone"
 )
-
-# Taken from GLFW
-# Only generate this target if no higher-level project already has
-if (NOT TARGET uninstall)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-        IMMEDIATE @ONLY
-    )
-
-    add_custom_target(uninstall
-        "${CMAKE_COMMAND}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    )
-endif()

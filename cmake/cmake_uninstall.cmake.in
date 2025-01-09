@@ -1,29 +1,33 @@
 # Taken from GLFW project
 
-if (NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
-    message(FATAL_ERROR "Cannot find install manifest: \"@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt\"")
+if(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest: @CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
 endif()
 
-file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
-string(REGEX REPLACE "\n" ";" files "${files}")
+file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" INSTALLED_FILES)
+string(REGEX REPLACE "\n" ";" INSTALLED_FILES "${INSTALLED_FILES}")
 
-foreach (file ${files})
-  message(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")
-  if (EXISTS "$ENV{DESTDIR}${file}")
-    exec_program("@CMAKE_COMMAND@" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
-                 OUTPUT_VARIABLE rm_out
-                 RETURN_VALUE rm_retval)
-    if (NOT "${rm_retval}" STREQUAL 0)
-      MESSAGE(FATAL_ERROR "Problem when removing \"$ENV{DESTDIR}${file}\"")
+foreach(INSTALLED_FILE ${INSTALLED_FILES})
+    message(STATUS "Uninstalling: $ENV{DESTDIR}${INSTALLED_FILE}")
+    if(EXISTS "$ENV{DESTDIR}${INSTALLED_FILE}")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E remove "$ENV{DESTDIR}${INSTALLED_FILE}"
+            OUTPUT_VARIABLE RM_OUT
+            RESULT_VARIABLE RM_RETURN_VALUE
+        )
+        if(NOT "${RM_RETURN_VALUE}" STREQUAL 0)
+            MESSAGE(FATAL_ERROR "Problem when removing $ENV{DESTDIR}${INSTALLED_FILE}")
+        endif()
+    elseif(IS_SYMLINK "$ENV{DESTDIR}${INSTALLED_FILE}")
+        execute_process(
+          COMMAND ${CMAKE_COMMAND} -E remove "$ENV{DESTDIR}${INSTALLED_FILE}"
+          OUTPUT_VARIABLE RM_OUT
+          RESULT_VARIABLE RM_RETURN_VALUE
+        )
+        if(NOT "${RM_RETURN_VALUE}" STREQUAL 0)
+            message(FATAL_ERROR "Problem when removing symlink $ENV{DESTDIR}${INSTALLED_FILE}")
+        endif()
+    else()
+        message(STATUS "File $ENV{DESTDIR}${INSTALLED_FILE} does not exist.")
     endif()
-  elseif (IS_SYMLINK "$ENV{DESTDIR}${file}")
-    EXEC_PROGRAM("@CMAKE_COMMAND@" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
-                 OUTPUT_VARIABLE rm_out
-                 RETURN_VALUE rm_retval)
-    if (NOT "${rm_retval}" STREQUAL 0)
-      message(FATAL_ERROR "Problem when removing symlink \"$ENV{DESTDIR}${file}\"")
-    endif()
-  else()
-    message(STATUS "File \"$ENV{DESTDIR}${file}\" does not exist.")
-  endif()
 endforeach()
