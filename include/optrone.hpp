@@ -258,7 +258,7 @@ enum class argument_type {
 /**
  *  @brief  Convert @c argument_type to string.
  *
- *  @param  arg_type  An argument type.
+ *  @param  arg_type  Argument type.
  *  @return  String representing @c argument_type enumeration.
  */
 [[nodiscard]] inline constexpr auto to_string(argument_type arg_type)
@@ -282,7 +282,7 @@ enum class argument_type {
 /**
  *  @brief  Get the type of argument from command line argument.
  *
- *  @param  argument  A command line argument.
+ *  @param  argument  Command line argument.
  *  @return  Argument type.
  */
 [[nodiscard]] inline constexpr auto get_argument_type(std::string_view argument)
@@ -330,7 +330,7 @@ enum class variadicity {
 /**
  *  @brief  Convert @c variadicity to string.
  *
- *  @param  variadic  The variadicity enum.
+ *  @param  variadic  Variadicity enum.
  *  @return  String representing @c variadicity enumeration.
  */
 [[nodiscard]] inline constexpr auto to_string(variadicity variadic)
@@ -349,7 +349,7 @@ enum class variadicity {
 /**
  *  @brief  Check if a parameter is variadic.
  *
- *  @param  parameter  A parameter.
+ *  @param  parameter  Parameter.
  *  @return  True if a parameter is variadic.
  */
 [[nodiscard]] inline constexpr auto is_parameter_variadic(
@@ -432,7 +432,7 @@ enum class validity {
 /**
  *  @brief  Convert @c validity to string.
  *
- *  @param  valid  The validity enum.
+ *  @param  valid  Validity enum.
  *  @return  String representing @c validity enumeration.
  */
 [[nodiscard]] inline constexpr auto to_string(validity valid)
@@ -524,8 +524,8 @@ struct parsed_argument {
  *
  *  @see  Detailed Description of namespace @c ap.
  *
- *  @param  argc         The arguments count from main().
- *  @param  argv         The argument values from main().
+ *  @param  argc         Arguments count from main().
+ *  @param  argv         Argument values from main().
  *  @param  options      All options/switches.
  *  @param  subcommands  All subcommands.
  *  @param  switch_ins   Whether to match Microsoft-style switches case
@@ -580,8 +580,8 @@ struct measured_string {
     /**
      *  @brief  Create measured string with string and size.
      *
-     *  @param  string  A string.
-     *  @param  size    The size of string without accounting ANSI Escape Codes.
+     *  @param  string  String.
+     *  @param  size    Size of string without accounting ANSI Escape Codes.
      */
     inline constexpr measured_string(std::string_view string, std::size_t size)
         : string(string), size(size) {}
@@ -589,8 +589,8 @@ struct measured_string {
     /**
      *  @brief  Create measured string by applying ANSI Escape Code.
      *
-     *  @param  code    The ANSI Escape Code to apply.
-     *  @param  string  The content to apply ANSI Escape Code.
+     *  @param  code    ANSI Escape Code to apply.
+     *  @param  string  Content to apply ANSI Escape Code.
      */
     inline constexpr measured_string(
         alcelin::aec::aec_t code,
@@ -600,7 +600,7 @@ struct measured_string {
     /**
      *  @brief  Add two measured string.
      *
-     *  @param  other  The other measured string.
+     *  @param  other  Other measured string.
      *  @return  A reference to self.
      */
     inline constexpr auto operator+= (
@@ -615,8 +615,8 @@ struct measured_string {
     /**
      *  @brief  Add two measured string.
      *
-     *  @param  a  The first measured string.
-     *  @param  b  The first measured string.
+     *  @param  a  First measured string.
+     *  @param  b  First measured string.
      *  @return  New measured string representing added measured string.
      */
     [[nodiscard]] friend inline constexpr auto operator+ (
@@ -802,7 +802,7 @@ struct styled_enclosure {
     /**
      *  @brief  Apply enclosure to content.
      *
-     *  @param  content  The content to apply enclosure to.
+     *  @param  content  Content to apply enclosure to.
      *  @return  A string with enclosure applied.
      */
     [[nodiscard]] inline constexpr auto str(std::string_view content) const
@@ -813,7 +813,7 @@ struct styled_enclosure {
     /**
      *  @brief  Get the number of characters for enclosure.
      *
-     *  @param  content  The content to calculate size for enclosure.
+     *  @param  content  Content to calculate size for enclosure.
      *  @return  Number of characters for enclosure.
      */
     [[nodiscard]] inline constexpr auto size(std::string_view content) const
@@ -824,7 +824,7 @@ struct styled_enclosure {
     /**
      *  @brief  Get a measured string representing enclosed text.
      *
-     *  @param  content  The content to apply enclosure to.
+     *  @param  content  Content to apply enclosure to.
      *  @return  Measured string representing enclosed text.
      */
     [[nodiscard]] inline constexpr auto m_str(std::string_view content) const
@@ -1169,8 +1169,8 @@ struct microsoft_help_format {
 /**
  *  @brief  Generate help message string from option and POSIX-style format.
  *
- *  @param  option  An option (not switch).
- *  @param  format  A POSIX-style format.
+ *  @param  option  Option (not switch).
+ *  @param  format  POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto get_help_message(
@@ -1181,8 +1181,8 @@ struct microsoft_help_format {
 /**
  *  @brief  Generate help message string from options and POSIX-style format.
  *
- *  @param  options  The options (not switches).
- *  @param  format   A POSIX-style format.
+ *  @param  options  Options (not switches).
+ *  @param  format   POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1201,8 +1201,8 @@ struct microsoft_help_format {
 /**
  *  @brief  Generate help message string from options and POSIX-style format.
  *
- *  @param  options  The options (not switches).
- *  @param  format   A POSIX-style format.
+ *  @param  options  Options (not switches).
+ *  @param  format   POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1222,8 +1222,8 @@ struct microsoft_help_format {
 /**
  *  @brief  Generate help message string from subcommand and POSIX-style format.
  *
- *  @param  subcommand  A Subcommand.
- *  @param  format      A POSIX-style format.
+ *  @param  subcommand  Subcommand.
+ *  @param  format      POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto get_help_message(
@@ -1235,8 +1235,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from subcommands and POSIX-style
  *          format.
  *
- *  @param  subcommands  The subcommands.
- *  @param  format       A POSIX-style format.
+ *  @param  subcommands  Subcommands.
+ *  @param  format       POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1257,8 +1257,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from subcommands and POSIX-style
  *          format.
  *
- *  @param  subcommands  The subcommands.
- *  @param  format       A POSIX-style format.
+ *  @param  subcommands  Subcommands.
+ *  @param  format       POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1279,8 +1279,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from option (switch) and
  *          Microsoft-style format.
  *
- *  @param  option  A switch (not option).
- *  @param  format  The Microsoft-style format.
+ *  @param  option  Switch (not option).
+ *  @param  format  Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto get_help_message(
@@ -1292,8 +1292,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from options (switches) and
  *          Microsoft-style format.
  *
- *  @param  options  The switches (not options).
- *  @param  format   The Microsoft-style format.
+ *  @param  options  Switches (not options).
+ *  @param  format   Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1313,8 +1313,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from options (switches) and
  *          Microsoft-style format.
  *
- *  @param  options  The switches (not options).
- *  @param  format   The Microsoft-style format.
+ *  @param  options  Switches (not options).
+ *  @param  format   Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1335,8 +1335,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from subcommand and Microsoft-style
  *          format.
  *
- *  @param  subcommand  A subcommand.
- *  @param  format      The Microsoft-style format.
+ *  @param  subcommand  Subcommand.
+ *  @param  format      Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto get_help_message(
@@ -1348,8 +1348,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from subcommands and Microsoft-style
  *          format.
  *
- *  @param  subcommands  The subcommands.
- *  @param  format       The Microsoft-style format.
+ *  @param  subcommands  Subcommands.
+ *  @param  format       Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1370,8 +1370,8 @@ struct microsoft_help_format {
  *  @brief  Generate help message string from subcommands and Microsoft-style
  *          format.
  *
- *  @param  subcommands  The subcommands.
- *  @param  format       The Microsoft-style format.
+ *  @param  subcommands  Subcommands.
+ *  @param  format       Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] inline constexpr auto get_help_message(
@@ -1390,7 +1390,7 @@ struct microsoft_help_format {
 
 /**
  *  @brief  Helper to print all the help message lines.
- *  @param  lines  The lines obtained by @c get_help_message .
+ *  @param  lines  Lines obtained by @c get_help_message .
  */
 [[nodiscard]] inline constexpr auto print_help_message(
     const std::vector<std::string> &lines

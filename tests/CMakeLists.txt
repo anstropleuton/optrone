@@ -18,5 +18,4 @@ set(OPTRONE_TESTS
 add_executable(optrone_tester ${OPTRONE_TESTS})
 target_include_directories(optrone_tester PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(optrone_tester PRIVATE optrone)
-target_link_libraries(optrone_tester PRIVATE alcelin)
 target_link_libraries(optrone_tester PRIVATE confer)

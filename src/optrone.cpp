@@ -57,7 +57,7 @@ using namespace alcelin::sm_operators;
 /**
  *  @brief  Throw if options/switches are null.
  *
- *  @param  options  The options.
+ *  @param  options  Options.
  *  @exception  std::invalid_argument  Thrown if options are null.
  */
 static inline constexpr auto options_sanity_checker(
@@ -116,8 +116,8 @@ static inline constexpr auto options_sanity_checker(
 /**
  *  @brief  Throw if subcommands or nested subcommands are null.
  *
- *  @param  subcommands  The subcommands.
- *  @param  level        The nesting level (optional).
+ *  @param  subcommands  Subcommands.
+ *  @param  level        Nesting level (optional).
  *  @exception  std::invalid_argument  Thrown if subcommands or nested
  *                                     subcommands are null.
  */
@@ -198,8 +198,8 @@ static inline constexpr auto subcommands_sanity_checker(
 /**
  *  @brief  Check if argument matches the long names of the options/switches.
  *
- *  @param  options     The options.
- *  @param  long_name   A long name to match.
+ *  @param  options     Options.
+ *  @param  long_name   Long name to match.
  *  @param  switch_ins  Whether to match Microsoft-style switches case
  *                      insensitively (optional).
  *  @return  Nullable pointer to matched option/switch.
@@ -228,8 +228,8 @@ static inline constexpr auto subcommands_sanity_checker(
 /**
  *  @brief  Check if argument matches the short names of the options/switches.
  *
- *  @param  options     The options
- *  @param  short_name  A short name to match.
+ *  @param  options     Options
+ *  @param  short_name  Short name to match.
  *  @param  switch_ins  Whether to match Microsoft-style switches case
  *                      insensitively (optional).
  *  @return  Nullable pointer to matched option/switch.
@@ -258,9 +258,9 @@ static inline constexpr auto subcommands_sanity_checker(
 /**
  *  @brief  Check if argument matches options/switches.
  *
- *  @param  arg         An argument to match options/switches.
- *  @param  arg_type    An argument type.
- *  @param  options     The options.
+ *  @param  arg         Argument to match options/switches.
+ *  @param  arg_type    Argument type.
+ *  @param  options     Options.
  *  @param  switch_ins  Whether to match Microsoft-style switches case
  *                      insensitively (optional).
  *  @return  Nullable pointer to matched option/switch.
@@ -311,7 +311,7 @@ static inline constexpr auto subcommands_sanity_checker(
 /**
  *  @brief  Check if argument matches subordinate command.
  *
- *  @param  arg                  An argument.
+ *  @param  arg                  Argument.
  *  @param  current_subcommands  Currently handling nested subcommands.
  *  @return  Nullable pointer to matched subcommand.
  */
@@ -339,8 +339,8 @@ static inline constexpr auto subcommands_sanity_checker(
  *
  *  @param  i              Current argument index.
  *  @param  mod_args       All the arguments.
- *  @param  parameters     The parameters to collect.
- *  @param  default_args   The default values for unprovided parameters.
+ *  @param  parameters     Parameters to collect.
+ *  @param  default_args   Default values for unprovided parameters.
  *  @return  Collected values.
  */
 [[nodiscard]] static inline constexpr auto collect_values(
@@ -716,13 +716,13 @@ static inline constexpr auto subcommands_sanity_checker(
 /**
  *  @brief  Abstract helper to add name to the option_line.
  *
- *  @tparam  container          A container of compatible type.
- *  @tparam  get_name_t         A function type to get the name from element.
- *  @param   ctr                A container of elements to get name from.
- *  @param   separator          A separator.
- *  @param   wrap_pad           The padding for wrapped line.
- *  @param   wrap_width         The max width to wrap at.
- *  @param   current_line       The current option line (local variable).
+ *  @tparam  container          Container of compatible type.
+ *  @tparam  get_name_t         Function type to get the name from element.
+ *  @param   ctr                Container of elements to get name from.
+ *  @param   separator          Separator.
+ *  @param   wrap_pad           Padding for wrapped line.
+ *  @param   wrap_width         Max width to wrap at.
+ *  @param   current_line       Current option line (local variable).
  *  @param   option_lines       All the option lines (local variable).
  *  @param   get_name           Function to get the name from element.
  */
@@ -765,9 +765,9 @@ static inline constexpr auto add_names(
 /**
  *  @brief  Helper to add long names to option_line.
  *
- *  @param  option             An option.
- *  @param  format             A POSIX-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  option             Option.
+ *  @param  format             POSIX-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_long_names(
@@ -789,9 +789,9 @@ static inline constexpr auto add_long_names(
 /**
  *  @brief  Helper to add short names to option_line.
  *
- *  @param  option             An option.
- *  @param  format             A POSIX-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  option             Option.
+ *  @param  format             POSIX-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_short_names(
@@ -815,9 +815,9 @@ static inline constexpr auto add_short_names(
  *  @brief  Helper to add Microsoft-style switch names (long and short option
  *          names) to option_line.
  *
- *  @param  option             An option.
- *  @param  format             A Microsoft-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  option             Option.
+ *  @param  format             Microsoft-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_microsoft_switches(
@@ -868,9 +868,9 @@ static inline constexpr auto add_microsoft_switches(
 /**
  *  @brief  Helper to add subcommand names to option_line.
  *
- *  @param  subcommand         The subcommand.
- *  @param  format             A POSIX-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  subcommand         Subcommand.
+ *  @param  format             POSIX-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_subcommand_names(
@@ -891,9 +891,9 @@ static inline constexpr auto add_subcommand_names(
 /**
  *  @brief  Helper to add subcommand names to option_line.
  *
- *  @param  subcommand         The subcommand.
- *  @param  format             A Microsoft-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  subcommand         Subcommand.
+ *  @param  format             Microsoft-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_subcommand_names(
@@ -914,14 +914,14 @@ static inline constexpr auto add_subcommand_names(
 /**
  *  @brief  Abstract helper to get formatted parameter name.
  *
- *  @param  i                      The current parameter index.
- *  @param  parameter              The current parameter.
- *  @param  parameters_count       The number of parameters.
- *  @param  defaults_count         The number of default values.
- *  @param  optional_enclose       An encloser for optional parameter.
- *  @param  mandatory_enclose      An encloser for mandatory parameter.
- *  @param  prefix_first           A prefix for first parameter.
- *  @param  prefix                 A prefix for rest of the parameters.
+ *  @param  i                      Current parameter index.
+ *  @param  parameter              Current parameter.
+ *  @param  parameters_count       Number of parameters.
+ *  @param  defaults_count         Number of default values.
+ *  @param  optional_enclose       Encloser for optional parameter.
+ *  @param  mandatory_enclose      Encloser for mandatory parameter.
+ *  @param  prefix_first           Prefix for first parameter.
+ *  @param  prefix                 Prefix for rest of the parameters.
  *  @param  enclose_before_prefix  Whether to enclose before appending prefix.
  *  @return  Formatted parameter name.
  */
@@ -968,9 +968,9 @@ static inline constexpr auto add_subcommand_names(
 /**
  *  @brief  Helper to add parameter names to option_line.
  *
- *  @param  option             An option.
- *  @param  format             A POSIX-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  option             Option.
+ *  @param  format             POSIX-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_parameter_names(
@@ -995,9 +995,9 @@ static inline constexpr auto add_parameter_names(
 /**
  *  @brief  Helper to add parameter names to option_line.
  *
- *  @param  option             An option.
- *  @param  format             A Microsoft-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  option             Option.
+ *  @param  format             Microsoft-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_parameter_names(
@@ -1022,9 +1022,9 @@ static inline constexpr auto add_parameter_names(
 /**
  *  @brief  Helper to add parameter names to option_line.
  *
- *  @param  subcommand         The subcommand.
- *  @param  format             A POSIX-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  subcommand         Subcommand.
+ *  @param  format             POSIX-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_parameter_names(
@@ -1050,9 +1050,9 @@ static inline constexpr auto add_parameter_names(
 /**
  *  @brief  Helper to add parameter names to option_line.
  *
- *  @param  subcommand         The subcommand.
- *  @param  format             A Microsoft-style format.
- *  @param  current_line       The current option line (local variable).
+ *  @param  subcommand         Subcommand.
+ *  @param  format             Microsoft-style format.
+ *  @param  current_line       Current option line (local variable).
  *  @param  option_lines       All the option lines (local variable).
  */
 static inline constexpr auto add_parameter_names(
@@ -1078,11 +1078,11 @@ static inline constexpr auto add_parameter_names(
 /**
  *  @brief  Helper to combine option_line and description text.
  *
- *  @param  desc              The description text.
- *  @param  desc_wrap_width   The width to wrap description at.
+ *  @param  desc              Description text.
+ *  @param  desc_wrap_width   Width to wrap description at.
  *  @param  ons_width         All option/switch and subcommand's total width.
- *  @param  pad_desc          The padding for first line of description.
- *  @param  pad_desc_wrapped  The padding for wrapped lines of description.
+ *  @param  pad_desc          Padding for first line of description.
+ *  @param  pad_desc_wrapped  Padding for wrapped lines of description.
  *  @param  option_lines      All the option lines (local variable).
  *  @return  @c std::vector<std::string> of lines after combining.
  */
@@ -1141,8 +1141,8 @@ static inline constexpr auto combine_option_description(
 /**
  *  @brief  Generate help message string from option and POSIX-style format.
  *
- *  @param  option  An option.
- *  @param  format  A POSIX-style format.
+ *  @param  option  Option.
+ *  @param  format  POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto o::get_help_message(
@@ -1188,8 +1188,8 @@ static inline constexpr auto combine_option_description(
 /**
  *  @brief  Generate help message string from subcommand and POSIX-style format.
  *
- *  @param  subcommand  The subcommand.
- *  @param  format      A POSIX-style format.
+ *  @param  subcommand  Subcommand.
+ *  @param  format      POSIX-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto o::get_help_message(
@@ -1216,8 +1216,8 @@ static inline constexpr auto combine_option_description(
  *  @brief  Generate help message string from option (switch) and
  *          Microsoft-style format.
  *
- *  @param  option  An option.
- *  @param  format  A Microsoft-style format.
+ *  @param  option  Option.
+ *  @param  format  Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto o::get_help_message(
@@ -1244,8 +1244,8 @@ static inline constexpr auto combine_option_description(
  *  @brief  Generate help message string from subcommand and Microsoft-style
  *          format.
  *
- *  @param  subcommand  The subcommand.
- *  @param  format      A Microsoft-style format.
+ *  @param  subcommand  Subcommand.
+ *  @param  format      Microsoft-style format.
  *  @return  @c std::vector<std::string> for each line.
  */
 [[nodiscard]] auto o::get_help_message(

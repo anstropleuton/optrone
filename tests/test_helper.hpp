@@ -333,8 +333,8 @@ static inline constexpr auto generate_combo(
  *  @brief  Generate multiple combination up to @c max_combos of indices from
  *          @c min_index up to @c max_index, and run the function.
  *
- *  @tparam  func_type        Type of function.
- *  @tparam  args_type        Type of additional arguments to function.
+ *  @tparam  func_type   Type of function.
+ *  @tparam  args_type   Type of additional arguments to function.
  *  @param   min_index   Min size for indices (inclusive).
  *  @param   max_index   Max size for indices (exclusive).
  *  @param   max_combos  Min combination (size) of indices (inclusive).

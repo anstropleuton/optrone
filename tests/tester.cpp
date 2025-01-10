@@ -233,5 +233,5 @@ auto main() -> int
         delete test;
     }
 
-    return errors;
+    return errors != 0;
 }

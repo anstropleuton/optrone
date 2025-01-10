@@ -11,13 +11,13 @@ option(OPTRONE_BUILD_EXAMPLES "Build Optrone examples" OFF)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/depman.cmake")
 
-depman_declare(confer "https://github.com/anstropleuton/confer" origin/main)
-depman_declare(alcelin "https://github.com/anstropleuton/alcelin" origin/main)
+depman_declare(confer "https://github.com/anstropleuton/confer.git" origin/main)
+depman_declare(alcelin "https://github.com/anstropleuton/alcelin.git" origin/main)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-set(DOXYGEN_OPTRONE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs")
+set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs")
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/optrone_config.hpp.in"
