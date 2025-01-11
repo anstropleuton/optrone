@@ -48,8 +48,7 @@
  *
  *  @todo  Split these tests into even smaller functions.
  */
-[[nodiscard]] CT_TESTER_FN(test_12)
-{
+[[nodiscard]] CT_TESTER_FN(test_12) {
     CT_BEGIN;
 
     std::vector<const o::option_template *>     options     = {};
@@ -58,7 +57,7 @@
     std::size_t test_index = 0;
     std::vector<std::size_t> failed_tests = {};
 
-    std::vector<std::string>         args     = {};
+    std::vector<std::string>        args     = {};
     std::vector<o::parsed_argument> expected = {};
 
     // Test `--arg value subcommand`
@@ -82,14 +81,18 @@
     args     = { "--arg", "value", "subcommand" };
     expected = {
         o::parsed_argument {
-            .argument     = {
-                .original = "--arg",
-                .modified = "--arg",
-                .arg_type = at::long_option,
-                .org_pos  = 2,
-                .org_size = 3,
-                .mod_pos  = 2,
-                .mod_size = 3
+            .argument         = {
+                .original     = {
+                    .text     = "--arg",
+                    .position = 2,
+                    .size     = 3
+                },
+                .modified     = {
+                    .text     = "--arg",
+                    .position = 2,
+                    .size     = 3
+                },
+                .arg_type     = at::long_option
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -98,14 +101,18 @@
             .values         = { "value" }
         },
         o::parsed_argument {
-            .argument     = {
-                .original = "subcommand",
-                .modified = "subcommand",
-                .arg_type = at::regular_argument,
-                .org_pos  = 0,
-                .org_size = 10,
-                .mod_pos  = 0,
-                .mod_size = 10
+            .argument         = {
+                .original     = {
+                    .text     = "subcommand",
+                    .position = 0,
+                    .size     = 10
+                },
+                .modified     = {
+                    .text     = "subcommand",
+                    .position = 0,
+                    .size     = 10
+                },
+                .arg_type     = at::regular_argument
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -170,14 +177,18 @@
     args     = { "subcommand-1", "value", "subcommand-2" };
     expected = {
         o::parsed_argument {
-            .argument     = {
-                .original = "subcommand-1",
-                .modified = "subcommand-1",
-                .arg_type = at::regular_argument,
-                .org_pos  = 0,
-                .org_size = 12,
-                .mod_pos  = 0,
-                .mod_size = 12
+            .argument         = {
+                .original     = {
+                    .text     = "subcommand-1",
+                    .position = 0,
+                    .size     = 12
+                },
+                .modified     = {
+                    .text     = "subcommand-1",
+                    .position = 0,
+                    .size     = 12
+                },
+                .arg_type     = at::regular_argument
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -186,14 +197,18 @@
             .values         = { "value" }
         },
         o::parsed_argument {
-            .argument     = {
-                .original = "subcommand-2",
-                .modified = "subcommand-2",
-                .arg_type = at::regular_argument,
-                .org_pos  = 0,
-                .org_size = 12,
-                .mod_pos  = 0,
-                .mod_size = 12
+            .argument         = {
+                .original     = {
+                    .text     = "subcommand-2",
+                    .position = 0,
+                    .size     = 12
+                },
+                .modified     = {
+                    .text     = "subcommand-2",
+                    .position = 0,
+                    .size     = 12
+                },
+                .arg_type     = at::regular_argument
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -239,14 +254,18 @@
     args     = { "=" };
     expected = {
         o::parsed_argument {
-            .argument     = {
-                .original = "=",
-                .modified = "=",
-                .arg_type = at::regular_argument,
-                .org_pos  = 0,
-                .org_size = 1,
-                .mod_pos  = 0,
-                .mod_size = 1
+            .argument         = {
+                .original     = {
+                    .text     = "=",
+                    .position = 0,
+                    .size     = 1
+                },
+                .modified     = {
+                    .text     = "=",
+                    .position = 0,
+                    .size     = 1
+                },
+                .arg_type     = at::regular_argument
             },
             .valid          = vdt::unrecognized_subcommand,
             .is_parsed      = true,
@@ -300,14 +319,18 @@
     args     = { "--arg", "value-1=value-2" };
     expected = {
         o::parsed_argument {
-            .argument     = {
-                .original = "--arg",
-                .modified = "--arg",
-                .arg_type = at::long_option,
-                .org_pos  = 2,
-                .org_size = 3,
-                .mod_pos  = 2,
-                .mod_size = 3
+            .argument         = {
+                .original     = {
+                    .text     = "--arg",
+                    .position = 2,
+                    .size     = 3
+                },
+                .modified     = {
+                    .text     = "--arg",
+                    .position = 2,
+                    .size     = 3
+                },
+                .arg_type     = at::long_option
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -373,14 +396,18 @@
     args     = { "global-subcommand-1", "global-subcommand-2" };
     expected = {
         o::parsed_argument {
-            .argument     = {
-                .original = "global-subcommand-1",
-                .modified = "global-subcommand-1",
-                .arg_type = at::regular_argument,
-                .org_pos  = 0,
-                .org_size = 19,
-                .mod_pos  = 0,
-                .mod_size = 19
+            .argument         = {
+                .original     = {
+                    .text     = "global-subcommand-1",
+                    .position = 0,
+                    .size     = 19
+                },
+                .modified     = {
+                    .text     = "global-subcommand-1",
+                    .position = 0,
+                    .size     = 19
+                },
+                .arg_type     = at::regular_argument
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -389,14 +416,18 @@
             .values         = {}
         },
         o::parsed_argument {
-            .argument     = {
-                .original = "global-subcommand-2",
-                .modified = "global-subcommand-2",
-                .arg_type = at::regular_argument,
-                .org_pos  = 0,
-                .org_size = 19,
-                .mod_pos  = 0,
-                .mod_size = 19
+            .argument         = {
+                .original     = {
+                    .text     = "global-subcommand-2",
+                    .position = 0,
+                    .size     = 19
+                },
+                .modified     = {
+                    .text     = "global-subcommand-2",
+                    .position = 0,
+                    .size     = 19
+                },
+                .arg_type     = at::regular_argument
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -458,14 +489,18 @@
     args     = { "--arg-1", "value", "--arg-2" };
     expected = {
         o::parsed_argument {
-            .argument     = {
-                .original = "--arg-1",
-                .modified = "--arg-1",
-                .arg_type = at::long_option,
-                .org_pos  = 2,
-                .org_size = 5,
-                .mod_pos  = 2,
-                .mod_size = 5
+            .argument         = {
+                .original     = {
+                    .text     = "--arg-1",
+                    .position = 2,
+                    .size     = 5
+                },
+                .modified     = {
+                    .text     = "--arg-1",
+                    .position = 2,
+                    .size     = 5
+                },
+                .arg_type     = at::long_option
             },
             .valid          = vdt::not_enough_values,
             .is_parsed      = true,
@@ -474,14 +509,18 @@
             .values         = { "value" }
         },
         o::parsed_argument {
-            .argument     = {
-                .original = "--arg-2",
-                .modified = "--arg-2",
-                .arg_type = at::long_option,
-                .org_pos  = 2,
-                .org_size = 5,
-                .mod_pos  = 2,
-                .mod_size = 5
+            .argument         = {
+                .original     = {
+                    .text     = "--arg-2",
+                    .position = 2,
+                    .size     = 5
+                },
+                .modified     = {
+                    .text     = "--arg-2",
+                    .position = 2,
+                    .size     = 5
+                },
+                .arg_type     = at::long_option
             },
             .valid          = vdt::valid,
             .is_parsed      = true,

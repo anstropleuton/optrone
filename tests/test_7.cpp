@@ -44,8 +44,7 @@
  *  @brief  Test 7: Option parameter with defaults recognition tests.
  *  @return  Number of errors.
  */
-[[nodiscard]] CT_TESTER_FN(test_7)
-{
+[[nodiscard]] CT_TESTER_FN(test_7) {
     CT_BEGIN;
 
     // Triangle number
@@ -107,7 +106,7 @@
             {
                 test_index++;
 
-                std::vector<std::string>         args     = {};
+                std::vector<std::string>        args     = {};
                 std::vector<o::parsed_argument> expected = {};
 
                 auto arg = std::format("--{}", option->long_names.front());
@@ -126,14 +125,18 @@
                             : vdt::not_enough_values;
 
                 o::parsed_argument expect = {
-                    .argument     = {
-                        .original = arg,
-                        .modified = arg,
-                        .arg_type = at::long_option,
-                        .org_pos  = 2,
-                        .org_size = arg.size() - 2,
-                        .mod_pos  = 2,
-                        .mod_size = arg.size() - 2
+                    .argument         = {
+                        .original     = {
+                            .text     = arg,
+                            .position = 2,
+                            .size     = arg.size() - 2
+                        },
+                        .modified     = {
+                            .text     = arg,
+                            .position = 2,
+                            .size     = arg.size() - 2
+                        },
+                        .arg_type     = at::long_option
                     },
                     .valid          = valid,
                     .is_parsed      = true,
@@ -175,14 +178,18 @@
                     auto arg = std::format("value-{}", k);
 
                     o::parsed_argument expect = {
-                        .argument     = {
-                            .original = arg,
-                            .modified = arg,
-                            .arg_type = at::regular_argument,
-                            .org_pos  = 0,
-                            .org_size = arg.size(),
-                            .mod_pos  = 0,
-                            .mod_size = arg.size()
+                        .argument         = {
+                            .original     = {
+                                .text     = arg,
+                                .position = 0,
+                                .size     = arg.size()
+                            },
+                            .modified     = {
+                                .text     = arg,
+                                .position = 0,
+                                .size     = arg.size()
+                            },
+                            .arg_type     = at::regular_argument
                         },
                         .valid          = vdt::unrecognized_subcommand,
                         .is_parsed      = true,

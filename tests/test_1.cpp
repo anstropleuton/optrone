@@ -41,11 +41,77 @@
 #include "test_helper.hpp"
 
 /**
+ *  @brief  Generate combination of indices from @c min_index up to
+ *          @c max_index, and run the function.
+ *
+ *  @tparam  func_type  Type of function.
+ *  @tparam  args_type  Type of additional arguments to function.
+ *  @param   combo      Current combination of indices.
+ *  @param   min_index  Min size for indices (inclusive).
+ *  @param   max_index  Max size for indices (exclusive).
+ *  @param   depth      Current depth of recursion.
+ *  @param   func       Function to call with combination.
+ *  @param   args       Additional arguments for function call.
+ */
+template<typename func_type, typename ... args_type>
+static constexpr auto generate_combo(
+    std::vector<std::size_t> &combo,
+    std::size_t               min_index,
+    std::size_t               max_index,
+    std::size_t               depth,
+    func_type                 func,
+    args_type &&...           args
+)
+{
+    if (depth == 0)
+    {
+        func(combo, args ...);
+        return;
+    }
+
+    for (std::size_t i = min_index; i < max_index; i++)
+    {
+        combo.emplace_back(i);
+        generate_combo(combo, min_index, max_index, depth - 1, func, args ...);
+        combo.pop_back();
+    }
+}
+
+/**
+ *  @brief  Generate multiple combination up to @c max_combos of indices from
+ *          @c min_index up to @c max_index, and run the function.
+ *
+ *  @tparam  func_type   Type of function.
+ *  @tparam  args_type   Type of additional arguments to function.
+ *  @param   min_index   Min size for indices (inclusive).
+ *  @param   max_index   Max size for indices (exclusive).
+ *  @param   max_combos  Min combination (size) of indices (inclusive).
+ *  @param   max_combos  Max combination (size) of indices (exclusive).
+ *  @param   func        Function to call with combination.
+ *  @param   args        Additional arguments for function call.
+ */
+template<typename func_type, typename ... args_type>
+static constexpr auto run_combo(
+    std::size_t     min_index,
+    std::size_t     max_index,
+    std::size_t     min_combos,
+    std::size_t     max_combos,
+    func_type       func,
+    args_type &&... args
+)
+{
+    std::vector<std::size_t> combo = {};
+    for (std::size_t i = min_combos; i < max_combos; i++)
+    {
+        generate_combo(combo, min_index, max_index, i, func, args ...);
+    }
+}
+
+/**
  *  @brief  Test 1: Option recognition tests.
  *  @return  Number of errors.
  */
-[[nodiscard]] CT_TESTER_FN(test_1)
-{
+[[nodiscard]] CT_TESTER_FN(test_1) {
     CT_BEGIN;
 
     // 4 tests in one go
@@ -78,16 +144,15 @@
         return ""s;
     };
 
-    // Actually, *2
-    std::size_t long_names_count  = 2;
-    std::size_t short_names_count = 2;
-    std::size_t combo_count       = 1;
+    std::size_t long_names_count  = 4;
+    std::size_t short_names_count = 4;
+    std::size_t combo_count       = 2;
 
     if (extensive_test)
     {
-        long_names_count  = 4;
-        short_names_count = 4;
-        combo_count       = 2;
+        long_names_count  = 8;
+        short_names_count = 8;
+        combo_count       = 4;
     }
 
     // I dare you put 13 as value on all the above variable
@@ -95,7 +160,7 @@
     std::vector<const o::option_template *> options = {};
 
     // Add options with one long name
-    for (std::size_t i = 0; i < long_names_count; i++)
+    for (std::size_t i = 0; i < long_names_count / 2; i++)
     {
         options.emplace_back(new o::option_template {
             .description = std::format(
@@ -109,14 +174,14 @@
 
     // Add one more option with n long names
     std::vector<std::string> flat_long_names = {};
-    for (std::size_t i = long_names_count; i < long_names_count * 2; i++)
+    for (std::size_t i = long_names_count / 2; i < long_names_count; i++)
     {
         flat_long_names.emplace_back(std::format("long-name-{}", i));
     }
 
     options.emplace_back(new o::option_template {
-        .description = std::format("Long name option recognition - {}",
-            long_names_count),
+        .description = std::format("Long name option recognition (flat) - {}",
+            long_names_count / 2),
         .long_names         = flat_long_names,
         .short_names        = {},
         .parameters         = {},
@@ -124,7 +189,7 @@
     });
 
     // Add options with one short name
-    for (std::size_t i = 0; i < short_names_count; i++)
+    for (std::size_t i = 0; i < short_names_count / 2; i++)
     {
         options.emplace_back(new o::option_template {
             .description = std::format(
@@ -138,14 +203,14 @@
 
     // Add one more option with n short names
     std::vector<char> flat_short_names = {};
-    for (std::size_t i = short_names_count; i < short_names_count * 2; i++)
+    for (std::size_t i = short_names_count / 2; i < short_names_count; i++)
     {
         flat_short_names.emplace_back(char ('a' + std::fmod(i, 25zu)));
     }
 
     options.emplace_back(new o::option_template {
-        .description = std::format("Short name option recognition - {}",
-            short_names_count),
+        .description = std::format("Short name option recognition (flat) - {}",
+            short_names_count / 2),
         .long_names         = {},
         .short_names        = flat_short_names,
         .parameters         = {},
@@ -215,14 +280,18 @@
         args.emplace_back(arg);
 
         o::parsed_argument expect = {
-            .argument     = {
-                .original = arg,
-                .modified = arg,
-                .arg_type = at::long_option,
-                .org_pos  = 2,
-                .org_size = arg.size() - 2,
-                .mod_pos  = 2,
-                .mod_size = arg.size() - 2
+            .argument         = {
+                .original     = {
+                    .text     = arg,
+                    .position = 2,
+                    .size     = arg.size() - 2,
+                },
+                .modified     = {
+                    .text     = arg,
+                    .position = 2,
+                    .size     = arg.size() - 2
+                },
+                .arg_type     = at::long_option
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -264,14 +333,18 @@
         args.emplace_back(arg);
 
         o::parsed_argument expect = {
-            .argument     = {
-                .original = arg,
-                .modified = arg,
-                .arg_type = at::short_option,
-                .org_pos  = 1,
-                .org_size = 1,
-                .mod_pos  = 1,
-                .mod_size = 1
+            .argument         = {
+                .original     = {
+                    .text     = arg,
+                    .position = 1,
+                    .size     = 1
+                },
+                .modified     = {
+                    .text     = arg,
+                    .position = 1,
+                    .size     = 1
+                },
+                .arg_type     = at::short_option,
             },
             .valid          = vdt::valid,
             .is_parsed      = true,
@@ -344,15 +417,19 @@
         {
             auto &option = combined_short_name_options[i];
             o::parsed_argument expect = {
-                .argument     = {
-                    .original = combined_short_name_arg,
-                    .modified = std::format("-{}",
-                        combined_short_name_arg[i + 1]),
-                    .arg_type = at::short_option,
-                    .org_pos  = i + 1,
-                    .org_size = 1,
-                    .mod_pos  = 1,
-                    .mod_size = 1
+                .argument         = {
+                    .original     = {
+                        .text     = combined_short_name_arg,
+                        .position = i + 1,
+                        .size     = 1
+                    },
+                    .modified = {
+                        .text = std::format("-{}",
+                            combined_short_name_arg[i + 1]),
+                        .position = 1,
+                        .size     = 1
+                    },
+                    .arg_type     = at::short_option
                 },
                 .valid          = vdt::valid,
                 .is_parsed      = true,
@@ -391,14 +468,18 @@
             args.emplace_back(arg);
 
             o::parsed_argument expect = {
-                .argument     = {
-                    .original = arg,
-                    .modified = arg,
-                    .arg_type = at::microsoft_switch,
-                    .org_pos  = 1,
-                    .org_size = arg.size() - 1,
-                    .mod_pos  = 1,
-                    .mod_size = arg.size() - 1
+                .argument         = {
+                    .original     = {
+                        .text     = arg,
+                        .position = 1,
+                        .size     = arg.size() - 1
+                    },
+                    .modified     = {
+                        .text     = arg,
+                        .position = 1,
+                        .size     = arg.size() - 1
+                    },
+                    .arg_type     = at::microsoft_switch
                 },
                 .valid          = vdt::valid,
                 .is_parsed      = true,
@@ -420,14 +501,18 @@
             args.emplace_back(arg);
 
             o::parsed_argument expect = {
-                .argument     = {
-                    .original = arg,
-                    .modified = arg,
-                    .arg_type = at::microsoft_switch,
-                    .org_pos  = 1,
-                    .org_size = arg.size() - 1,
-                    .mod_pos  = 1,
-                    .mod_size = arg.size() - 1
+                .argument         = {
+                    .original     = {
+                        .text     = arg,
+                        .position = 1,
+                        .size     = arg.size() - 1
+                    },
+                    .modified     = {
+                        .text     = arg,
+                        .position = 1,
+                        .size     = arg.size() - 1
+                    },
+                    .arg_type     = at::microsoft_switch
                 },
                 .valid          = vdt::valid,
                 .is_parsed      = true,
@@ -461,7 +546,7 @@
     {
         test_index++;
 
-        std::vector<std::string>         args     = {};
+        std::vector<std::string>        args     = {};
         std::vector<o::parsed_argument> expected = {};
 
         for (auto index : indices)

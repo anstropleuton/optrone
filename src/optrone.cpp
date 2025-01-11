@@ -39,16 +39,16 @@
  *    "Standard".
  */
 
+#include "optrone.hpp"
+
 #include <print>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "optrone.hpp"
-
 using namespace std::string_literals;
 
-namespace o = optrone;
+namespace o  = optrone;
 namespace sm = alcelin::sm;
 namespace cu = alcelin::cu;
 
@@ -123,7 +123,7 @@ static inline constexpr auto options_sanity_checker(
  */
 static inline constexpr auto subcommands_sanity_checker(
     const std::vector<const o::subcommand_template *> &subcommands,
-    std::vector<std::size_t>                            nesting_indices
+    std::vector<std::size_t>                           nesting_indices
 ) -> void
 {
     for (std::size_t i = 0; i < subcommands.size(); i++)
@@ -206,8 +206,8 @@ static inline constexpr auto subcommands_sanity_checker(
  */
 [[nodiscard]] static inline constexpr auto match_long_names(
     const std::vector<const o::option_template *> &options,
-    std::string                                     long_name,
-    bool                                            switch_ins = false
+    std::string                                    long_name,
+    bool                                           switch_ins = false
 ) -> const o::option_template *
 {
     for (auto &option : options)
@@ -236,8 +236,8 @@ static inline constexpr auto subcommands_sanity_checker(
  */
 [[nodiscard]] static inline constexpr auto match_short_names(
     const std::vector<const o::option_template *> &options,
-    char                                            short_name,
-    bool                                            switch_ins = false
+    char                                           short_name,
+    bool                                           switch_ins = false
 ) -> const o::option_template *
 {
     for (auto &option : options)
@@ -266,10 +266,10 @@ static inline constexpr auto subcommands_sanity_checker(
  *  @return  Nullable pointer to matched option/switch.
  */
 [[nodiscard]] static inline constexpr auto match_option(
-    std::string                                    &arg,
+    std::string                                   &arg,
     o::argument_type                               arg_type,
     const std::vector<const o::option_template *> &options,
-    bool                                            switch_ins
+    bool                                           switch_ins
 ) -> const o::option_template *
 {
     if (arg_type == o::argument_type::long_option)
@@ -316,7 +316,7 @@ static inline constexpr auto subcommands_sanity_checker(
  *  @return  Nullable pointer to matched subcommand.
  */
 [[nodiscard]] static inline constexpr auto match_subcommand(
-    std::string                                        arg,
+    std::string                                       arg,
     const std::vector<const o::subcommand_template *> current_subcommands
 ) -> const o::subcommand_template *
 {
@@ -338,17 +338,17 @@ static inline constexpr auto subcommands_sanity_checker(
  *  @brief  Collect arguments that are not option or switch, to use as values.
  *
  *  @param  i              Current argument index.
- *  @param  mod_args       All the arguments.
+ *  @param  meta_args      All the arguments.
  *  @param  parameters     Parameters to collect.
  *  @param  default_args   Default values for unprovided parameters.
  *  @return  Collected values.
  */
 [[nodiscard]] static inline constexpr auto collect_values(
     std::size_t                        &i,
-    const std::vector<o::mod_argument> mod_args,
+    const std::vector<o::meta_argument> meta_args,
     const std::vector<std::string>     &parameters,
     const std::vector<std::string>     &default_args,
-    o::validity                       &valid
+    o::validity                        &valid
 )
 {
     std::vector<std::string> collected_values = {};
@@ -365,16 +365,16 @@ static inline constexpr auto subcommands_sanity_checker(
 
     if (is_variadic == o::variadicity::not_variadic)
     {
-        for (; j < parameters.size() && i + j + 1 < mod_args.size(); j++)
+        for (; j < parameters.size() && i + j + 1 < meta_args.size(); j++)
         {
-            auto &mod_arg = mod_args[i + j + 1];
-            if (mod_arg.arg_type != o::argument_type::regular_argument
-             && mod_arg.arg_type != o::argument_type::single_hyphen)
+            auto &meta_arg = meta_args[i + j + 1];
+            if (meta_arg.arg_type != o::argument_type::regular_argument
+             && meta_arg.arg_type != o::argument_type::single_hyphen)
             {
                 break;
             }
 
-            collected_values.emplace_back(mod_arg.modified);
+            collected_values.emplace_back(meta_arg.modified.text);
         }
 
         auto defaults_provided = j - parameters.size() + default_args.size();
@@ -394,16 +394,16 @@ static inline constexpr auto subcommands_sanity_checker(
     }
     else
     {
-        for (; i + j + 1 < mod_args.size(); j++)
+        for (; i + j + 1 < meta_args.size(); j++)
         {
-            auto &mod_arg = mod_args[i + j + 1];
-            if (mod_arg.arg_type != o::argument_type::regular_argument
-             && mod_arg.arg_type != o::argument_type::single_hyphen)
+            auto &meta_arg = meta_args[i + j + 1];
+            if (meta_arg.arg_type != o::argument_type::regular_argument
+             && meta_arg.arg_type != o::argument_type::single_hyphen)
             {
                 break;
             }
 
-            collected_values.emplace_back(mod_arg.modified);
+            collected_values.emplace_back(meta_arg.modified.text);
         }
 
         // Validity check
@@ -460,7 +460,7 @@ static inline constexpr auto subcommands_sanity_checker(
     subcommands_sanity_checker(subcommands, {});
 
     // Split with '=' or ':' based on argument
-    std::vector<mod_argument> mod_args_1 = {};
+    std::vector<meta_argument> meta_args_1 = {};
     std::size_t mod_i_1 = 0;
     for (; mod_i_1 < args.size(); mod_i_1++)
     {
@@ -487,53 +487,66 @@ static inline constexpr auto subcommands_sanity_checker(
 
         if (pos == std::string::npos)
         {
-            mod_args_1.emplace_back(
-                arg, arg, arg_type, 0, arg.size(), 0, arg.size()
+            meta_args_1.emplace_back(
+                squiggled_text(arg, 0, arg.size()),
+                squiggled_text(arg, 0, arg.size()),
+                arg_type
             );
             continue;
         }
 
         auto first  = arg.substr(0, pos);
         auto second = arg.substr(pos + 1);
-        mod_args_1.emplace_back(arg, first, arg_type, 0, pos, 0,
-            first.size());
-        mod_args_1.emplace_back(arg, second, argument_type::regular_argument,
-            pos + 1, second.size(), 0, second.size());
+        meta_args_1.emplace_back(
+            squiggled_text(arg,   0, pos),
+            squiggled_text(first, 0, first.size()),
+            arg_type
+        );
+        meta_args_1.emplace_back(
+            squiggled_text(arg,    pos + 1, second.size()),
+            squiggled_text(second, 0,       second.size()),
+            argument_type::regular_argument
+        );
     }
 
     // Unparsed
     for (; mod_i_1 < args.size(); mod_i_1++)
     {
         auto &arg = args[mod_i_1];
-        mod_args_1.emplace_back(
-            arg, arg, argument_type::unknown, 0, arg.size(), 0, arg.size()
+        meta_args_1.emplace_back(
+            squiggled_text(arg, 0, arg.size()),
+            squiggled_text(arg, 0, arg.size()),
+            argument_type::unknown
         );
     }
 
     // Split short options of "-abc" to "-a", "-b", "-c"
-    std::vector<mod_argument> mod_args_2 = {};
+    std::vector<meta_argument> meta_args_2 = {};
     std::size_t mod_i_2 = 0;
-    for (; mod_i_2 < mod_args_1.size(); mod_i_2++)
+    for (; mod_i_2 < meta_args_1.size(); mod_i_2++)
     {
-        auto &mod_arg = mod_args_1[mod_i_2];
+        auto &meta_arg = meta_args_1[mod_i_2];
 
-        if (mod_arg.arg_type == argument_type::double_hyphen
-         || mod_arg.arg_type == argument_type::unknown)
+        if (meta_arg.arg_type == argument_type::double_hyphen
+         || meta_arg.arg_type == argument_type::unknown)
         {
             break;
         }
 
-        if (mod_arg.arg_type != argument_type::short_option)
+        if (meta_arg.arg_type != argument_type::short_option)
         {
-            mod_args_2.emplace_back(mod_arg);
+            meta_args_2.emplace_back(meta_arg);
             continue;
         }
 
-        for (std::size_t i = 1; i < mod_arg.modified.size(); i++)
+        for (std::size_t i = 1; i < meta_arg.modified.text.size(); i++)
         {
-            mod_args_2.emplace_back(mod_arg.original,
-                "-"s + mod_arg.modified[i], mod_arg.arg_type,
-                mod_arg.org_pos + i, 1, 1, 1);
+            meta_args_2.emplace_back(
+                squiggled_text(meta_arg.original.text,
+                    meta_arg.original.position + i, 1),
+                squiggled_text("-"s + meta_arg.modified.text[i], 1, 1),
+                meta_arg.arg_type
+            );
         }
     }
 
@@ -541,39 +554,49 @@ static inline constexpr auto subcommands_sanity_checker(
     for (; mod_i_2 < args.size(); mod_i_2++)
     {
         auto &arg = args[mod_i_2];
-        mod_args_2.emplace_back(
-            arg, arg, argument_type::unknown, 0, arg.size(), 0, arg.size()
+        meta_args_2.emplace_back(
+            squiggled_text(arg, 0, arg.size()),
+            squiggled_text(arg, 0, arg.size()),
+            argument_type::unknown
         );
     }
 
     // Adjust pos and size for long names and Microsoft-style names
-    std::vector<mod_argument> mod_args_3 = {};
+    std::vector<meta_argument> meta_args_3 = {};
     std::size_t mod_i_3 = 0;
-    for (; mod_i_3 < mod_args_2.size(); mod_i_3++)
+    for (; mod_i_3 < meta_args_2.size(); mod_i_3++)
     {
-        auto &mod_arg = mod_args_2[mod_i_3];
+        auto &meta_arg = meta_args_2[mod_i_3];
 
-        if (mod_arg.arg_type == argument_type::double_hyphen
-         || mod_arg.arg_type == argument_type::unknown)
+        if (meta_arg.arg_type == argument_type::double_hyphen
+         || meta_arg.arg_type == argument_type::unknown)
         {
             break;
         }
 
-        if (mod_arg.arg_type == argument_type::long_option)
+        if (meta_arg.arg_type == argument_type::long_option)
         {
-            mod_args_3.emplace_back(mod_arg.original, mod_arg.modified,
-                mod_arg.arg_type, 2, mod_arg.modified.size() - 2, 2,
-                mod_arg.modified.size() - 2);
+            meta_args_3.emplace_back(
+                squiggled_text(meta_arg.original.text, 2,
+                    meta_arg.modified.text.size() - 2),
+                squiggled_text(meta_arg.modified.text, 2,
+                    meta_arg.modified.text.size() - 2),
+                meta_arg.arg_type
+            );
         }
-        else if (mod_arg.arg_type == argument_type::microsoft_switch)
+        else if (meta_arg.arg_type == argument_type::microsoft_switch)
         {
-            mod_args_3.emplace_back(mod_arg.original, mod_arg.modified,
-                mod_arg.arg_type, 1, mod_arg.modified.size() - 1, 1,
-                mod_arg.modified.size() - 1);
+            meta_args_3.emplace_back(
+                squiggled_text(meta_arg.original.text, 1,
+                    meta_arg.modified.text.size() - 1),
+                squiggled_text(meta_arg.modified.text, 1,
+                    meta_arg.modified.text.size() - 1),
+                meta_arg.arg_type
+            );
         }
         else
         {
-            mod_args_3.emplace_back(mod_arg);
+            meta_args_3.emplace_back(meta_arg);
         }
     }
 
@@ -581,13 +604,15 @@ static inline constexpr auto subcommands_sanity_checker(
     for (; mod_i_3 < args.size(); mod_i_3++)
     {
         auto &arg = args[mod_i_3];
-        mod_args_3.emplace_back(
-            arg, arg, argument_type::unknown, 0, arg.size(), 0, arg.size()
+        meta_args_3.emplace_back(
+            squiggled_text(arg, 0, arg.size()),
+            squiggled_text(arg, 0, arg.size()),
+            argument_type::unknown
         );
     }
 
     // Latest modification
-    auto mod_args = mod_args_3;
+    auto meta_args = meta_args_3;
 
     // Nesting subcommands is a thing
     const subcommand_template *current_subcommand = nullptr;
@@ -595,37 +620,37 @@ static inline constexpr auto subcommands_sanity_checker(
     // Finally, we parse! (with the 90% of parsing code made being above...)
     std::vector<parsed_argument> result = {};
     std::size_t i = 0;
-    for (; i < mod_args.size(); i++)
+    for (; i < meta_args.size(); i++)
     {
-        auto &mod_arg = mod_args[i];
+        auto &meta_arg = meta_args[i];
 
-        if (mod_arg.arg_type == argument_type::double_hyphen
-         || mod_arg.arg_type == argument_type::unknown)
+        if (meta_arg.arg_type == argument_type::double_hyphen
+         || meta_arg.arg_type == argument_type::unknown)
         {
             break;
         }
         // First check for subcommand
-        else if (mod_arg.arg_type == argument_type::regular_argument)
+        else if (meta_arg.arg_type == argument_type::regular_argument)
         {
             const subcommand_template *matched_subcommand = nullptr;
             if (current_subcommand)
             {
-                matched_subcommand = match_subcommand(mod_arg.modified,
+                matched_subcommand = match_subcommand(meta_arg.modified.text,
                     current_subcommand->subcommands);
             }
 
             if (!matched_subcommand)
             {
                 current_subcommand = nullptr;
-                matched_subcommand = match_subcommand(mod_arg.modified,
+                matched_subcommand = match_subcommand(meta_arg.modified.text,
                     subcommands);
             }
 
             if (!matched_subcommand)
             {
                 parsed_argument parsed_arg = {
-                    mod_arg, validity::unrecognized_subcommand, true, nullptr,
-                    nullptr, {}
+                    meta_arg, validity::unrecognized_subcommand, true, nullptr,
+                    nullptr,  {}
                 };
 
                 result.emplace_back(parsed_arg);
@@ -633,44 +658,44 @@ static inline constexpr auto subcommands_sanity_checker(
             }
 
             validity valid          = validity::valid;
-            auto     collected_args = collect_values(i, mod_args,
+            auto     collected_args = collect_values(i, meta_args,
                 matched_subcommand->parameters,
                 matched_subcommand->defaults_from_back, valid);
 
             parsed_argument parsed_arg = {
-                mod_arg, valid, true, nullptr, matched_subcommand,
+                meta_arg, valid, true, nullptr, matched_subcommand,
                 collected_args
             };
 
             result.emplace_back(parsed_arg);
             current_subcommand = matched_subcommand;
         }
-        else if (mod_arg.arg_type == argument_type::long_option
-              || mod_arg.arg_type == argument_type::short_option
-              || mod_arg.arg_type == argument_type::microsoft_switch)
+        else if (meta_arg.arg_type == argument_type::long_option
+              || meta_arg.arg_type == argument_type::short_option
+              || meta_arg.arg_type == argument_type::microsoft_switch)
         {
             // Then for options/switches within a subcommand if subcommand is
             // available
             const option_template *matched_option = nullptr;
             if (current_subcommand)
             {
-                matched_option = match_option(mod_arg.modified,
-                    mod_arg.arg_type, current_subcommand->subcommand_options,
+                matched_option = match_option(meta_arg.modified.text,
+                    meta_arg.arg_type, current_subcommand->subcommand_options,
                     switch_ins);
             }
 
             // Then for global options/switches
             if (!matched_option)
             {
-                matched_option = match_option(mod_arg.modified,
-                    mod_arg.arg_type, options, switch_ins);
+                matched_option = match_option(meta_arg.modified.text,
+                    meta_arg.arg_type, options, switch_ins);
             }
 
             if (!matched_option)
             {
                 parsed_argument parsed_arg = {
-                    mod_arg, validity::unrecognized_option, true, nullptr,
-                    nullptr, {}
+                    meta_arg, validity::unrecognized_option, true, nullptr,
+                    nullptr,  {}
                 };
 
                 result.emplace_back(parsed_arg);
@@ -679,12 +704,12 @@ static inline constexpr auto subcommands_sanity_checker(
 
             validity valid = validity::valid;
 
-            auto collected_args = collect_values(i, mod_args,
+            auto collected_args = collect_values(i, meta_args,
                 matched_option->parameters,
                 matched_option->defaults_from_back, valid);
 
             parsed_argument parsed_arg = {
-                mod_arg, valid, true, matched_option, nullptr, collected_args
+                meta_arg, valid, true, matched_option, nullptr, collected_args
             };
 
             result.emplace_back(parsed_arg);
@@ -692,7 +717,7 @@ static inline constexpr auto subcommands_sanity_checker(
         else
         {
             parsed_argument parsed_arg = {
-                mod_arg, validity::unknown, true, nullptr, nullptr, {}
+                meta_arg, validity::unknown, true, nullptr, nullptr, {}
             };
 
             result.emplace_back(parsed_arg);
@@ -700,12 +725,12 @@ static inline constexpr auto subcommands_sanity_checker(
     }
 
     // Add all the unparsed arguments (as valid)
-    for (; i < mod_args.size(); i++)
+    for (; i < meta_args.size(); i++)
     {
-        auto &mod_arg = mod_args[i];
+        auto &meta_arg = meta_args[i];
 
         parsed_argument parsed_arg = {
-            mod_arg, validity::valid, false, nullptr, nullptr, {}
+            meta_arg, validity::valid, false, nullptr, nullptr, {}
         };
 
         result.emplace_back(parsed_arg);
@@ -728,13 +753,13 @@ static inline constexpr auto subcommands_sanity_checker(
  */
 template<cu::cu_compatible container, typename get_name_t>
 static inline constexpr auto add_names(
-    const container                  &ctr,
+    const container                 &ctr,
     o::styled_text                   separator,
     o::styled_padding                wrap_pad,
-    std::size_t                       wrap_width,
+    std::size_t                      wrap_width,
     o::measured_string              &current_line,
     std::vector<o::measured_string> &option_lines,
-    get_name_t                           get_name
+    get_name_t                       get_name
 )
 {
     for (std::size_t i = 0; i < std::size(ctr); i++)
@@ -926,15 +951,15 @@ static inline constexpr auto add_subcommand_names(
  *  @return  Formatted parameter name.
  */
 [[nodiscard]] static inline constexpr auto parameter_name_adder(
-    std::size_t          i,
-    const std::string   &parameter,
-    std::size_t          parameters_count,
-    std::size_t          defaults_count,
+    std::size_t         i,
+    const std::string  &parameter,
+    std::size_t         parameters_count,
+    std::size_t         defaults_count,
     o::styled_enclosure optional_enclose,
     o::styled_enclosure mandatory_enclose,
     o::styled_text      prefix_first,
     o::styled_text      prefix,
-    bool                 enclose_before_prefix
+    bool                enclose_before_prefix
 )
 {
     bool is_optional = parameters_count - defaults_count < i + 1;
@@ -1087,9 +1112,9 @@ static inline constexpr auto add_parameter_names(
  *  @return  @c std::vector<std::string> of lines after combining.
  */
 static inline constexpr auto combine_option_description(
-    std::string                       desc,
-    std::size_t                       desc_wrap_width,
-    std::size_t                       ons_width,
+    std::string                      desc,
+    std::size_t                      desc_wrap_width,
+    std::size_t                      ons_width,
     o::styled_padding                pad_desc,
     o::styled_padding                pad_desc_wrapped,
     std::vector<o::measured_string> &option_lines
@@ -1150,7 +1175,7 @@ static inline constexpr auto combine_option_description(
     posix_help_format      format
 ) -> std::vector<std::string>
 {
-    std::vector<std::string>         result       = {};
+    std::vector<std::string>        result       = {};
     std::vector<o::measured_string> option_lines = {};
     o::measured_string current_line = {};
 
@@ -1197,7 +1222,7 @@ static inline constexpr auto combine_option_description(
     posix_help_format          format
 ) -> std::vector<std::string>
 {
-    std::vector<std::string>         result       = {};
+    std::vector<std::string>        result       = {};
     std::vector<o::measured_string> option_lines = {};
     o::measured_string current_line = {};
 
@@ -1225,7 +1250,7 @@ static inline constexpr auto combine_option_description(
     microsoft_help_format  format
 ) -> std::vector<std::string>
 {
-    std::vector<std::string>         result       = {};
+    std::vector<std::string>        result       = {};
     std::vector<o::measured_string> option_lines = {};
     o::measured_string current_line = {};
 
@@ -1253,7 +1278,7 @@ static inline constexpr auto combine_option_description(
     microsoft_help_format      format
 ) -> std::vector<std::string>
 {
-    std::vector<std::string>         result       = {};
+    std::vector<std::string>        result       = {};
     std::vector<o::measured_string> option_lines = {};
     o::measured_string current_line = {};
 

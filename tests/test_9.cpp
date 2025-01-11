@@ -46,8 +46,7 @@
  *
  *  @todo  Split these tests into even smaller functions.
  */
-[[nodiscard]] CT_TESTER_FN(test_9)
-{
+[[nodiscard]] CT_TESTER_FN(test_9) {
     CT_BEGIN;
 
     std::vector<const o::option_template *> options = {};
@@ -60,7 +59,7 @@
         .defaults_from_back = {}
     });
 
-    std::vector<std::string>         args     = {};
+    std::vector<std::string>        args     = {};
     std::vector<o::parsed_argument> expected = {};
 
     std::size_t test_index = 0;
@@ -68,14 +67,18 @@
 
     args.emplace_back("--name=value");
     expected.emplace_back(o::parsed_argument {
-        .argument     = {
-            .original = "--name=value",
-            .modified = "--name",
-            .arg_type = at::long_option,
-            .org_pos  = 2,
-            .org_size = 4,
-            .mod_pos  = 2,
-            .mod_size = 4
+        .argument         = {
+            .original     = {
+                .text     = "--name=value",
+                .position = 2,
+                .size     = 4
+            },
+            .modified     = {
+                .text     = "--name",
+                .position = 2,
+                .size     = 4
+            },
+            .arg_type     = at::long_option
         },
         .valid          = vdt::valid,
         .is_parsed      = true,
@@ -108,14 +111,18 @@
 
     args.emplace_back("-a=value");
     expected.emplace_back(o::parsed_argument {
-        .argument     = {
-            .original = "-a=value",
-            .modified = "-a",
-            .arg_type = at::short_option,
-            .org_pos  = 1,
-            .org_size = 1,
-            .mod_pos  = 1,
-            .mod_size = 1
+        .argument         = {
+            .original     = {
+                .text     = "-a=value",
+                .position = 1,
+                .size     = 1
+            },
+            .modified     = {
+                .text     = "-a",
+                .position = 1,
+                .size     = 1
+            },
+            .arg_type     = at::short_option
         },
         .valid          = vdt::valid,
         .is_parsed      = true,
@@ -148,14 +155,18 @@
 
     args.emplace_back("/name:value");
     expected.emplace_back(o::parsed_argument {
-        .argument     = {
-            .original = "/name:value",
-            .modified = "/name",
-            .arg_type = at::microsoft_switch,
-            .org_pos  = 1,
-            .org_size = 4,
-            .mod_pos  = 1,
-            .mod_size = 4
+        .argument         = {
+            .original     = {
+                .text     = "/name:value",
+                .position = 1,
+                .size     = 4
+            },
+            .modified     = {
+                .text     = "/name",
+                .position = 1,
+                .size     = 4
+            },
+            .arg_type     = at::microsoft_switch
         },
         .valid          = vdt::valid,
         .is_parsed      = true,
@@ -188,14 +199,18 @@
 
     args.emplace_back("/a:value");
     expected.emplace_back(o::parsed_argument {
-        .argument     = {
-            .original = "/a:value",
-            .modified = "/a",
-            .arg_type = at::microsoft_switch,
-            .org_pos  = 1,
-            .org_size = 1,
-            .mod_pos  = 1,
-            .mod_size = 1
+        .argument         = {
+            .original     = {
+                .text     = "/a:value",
+                .position = 1,
+                .size     = 1
+            },
+            .modified     = {
+                .text     = "/a",
+                .position = 1,
+                .size     = 1
+            },
+            .arg_type     = at::microsoft_switch
         },
         .valid          = vdt::valid,
         .is_parsed      = true,
@@ -228,14 +243,18 @@
 
     args.emplace_back("--name:value");
     expected.emplace_back(o::parsed_argument {
-        .argument     = {
-            .original = "--name:value",
-            .modified = "--name:value",
-            .arg_type = at::long_option,
-            .org_pos  = 2,
-            .org_size = 10,
-            .mod_pos  = 2,
-            .mod_size = 10
+        .argument         = {
+            .original     = {
+                .text     = "--name:value",
+                .position = 2,
+                .size     = 10
+            },
+            .modified     = {
+                .text     = "--name:value",
+                .position = 2,
+                .size     = 10
+            },
+            .arg_type     = at::long_option
         },
         .valid          = vdt::unrecognized_option,
         .is_parsed      = true,
@@ -268,14 +287,18 @@
 
     args.emplace_back("/name=value");
     expected.emplace_back(o::parsed_argument {
-        .argument     = {
-            .original = "/name=value",
-            .modified = "/name=value",
-            .arg_type = at::microsoft_switch,
-            .org_pos  = 1,
-            .org_size = 10,
-            .mod_pos  = 1,
-            .mod_size = 10
+        .argument         = {
+            .original     = {
+                .text     = "/name=value",
+                .position = 1,
+                .size     = 10
+            },
+            .modified     = {
+                .text     = "/name=value",
+                .position = 1,
+                .size     = 10
+            },
+            .arg_type     = at::microsoft_switch
         },
         .valid          = vdt::unrecognized_option,
         .is_parsed      = true,

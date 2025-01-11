@@ -46,8 +46,7 @@ namespace stdr = std::ranges;
  *  @brief  Test 3: Nested subcommand recognition tests.
  *  @return  Number of errors.
  */
-[[nodiscard]] CT_TESTER_FN(test_3)
-{
+[[nodiscard]] CT_TESTER_FN(test_3) {
     CT_BEGIN;
 
     std::size_t nest  = 2;
@@ -121,14 +120,18 @@ namespace stdr = std::ranges;
             {
                 args.emplace_back(name);
                 o::parsed_argument expect = {
-                    .argument     = {
-                        .original = name,
-                        .modified = name,
-                        .arg_type = at::regular_argument,
-                        .org_pos  = 0,
-                        .org_size = name.size(),
-                        .mod_pos  = 0,
-                        .mod_size = name.size()
+                    .argument         = {
+                        .original     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .modified     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .arg_type     = at::regular_argument
                     },
                     .valid          = vdt::valid,
                     .is_parsed      = true,
@@ -150,14 +153,18 @@ namespace stdr = std::ranges;
                 auto name = subcommand->names.front();
                 args.emplace_back(name);
                 o::parsed_argument expect = {
-                    .argument     = {
-                        .original = name,
-                        .modified = name,
-                        .arg_type = at::regular_argument,
-                        .org_pos  = 0,
-                        .org_size = name.size(),
-                        .mod_pos  = 0,
-                        .mod_size = name.size()
+                    .argument         = {
+                        .original     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .modified     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .arg_type     = at::regular_argument
                     },
                     .valid          = vdt::valid,
                     .is_parsed      = true,
@@ -184,7 +191,7 @@ namespace stdr = std::ranges;
             test_index++;
 
             std::size_t current_index = 0;
-            std::vector<std::string>         args     = {};
+            std::vector<std::string>        args     = {};
             std::vector<o::parsed_argument> expected = {};
             bool found = false;
             for (auto &subcommand : subcommands)

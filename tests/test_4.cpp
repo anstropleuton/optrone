@@ -46,8 +46,7 @@ namespace stdr = std::ranges;
  *  @brief  Test 4: Nested option recognition tests.
  *  @return  Number of errors.
  */
-[[nodiscard]] CT_TESTER_FN(test_4)
-{
+[[nodiscard]] CT_TESTER_FN(test_4) {
     CT_BEGIN;
 
     std::size_t nest  = 2;
@@ -133,14 +132,18 @@ namespace stdr = std::ranges;
                 args.emplace_back(arg);
 
                 o::parsed_argument expect = {
-                    .argument     = {
-                        .original = arg,
-                        .modified = arg,
-                        .arg_type = at::long_option,
-                        .org_pos  = 2,
-                        .org_size = arg.size() - 2,
-                        .mod_pos  = 2,
-                        .mod_size = arg.size() - 2
+                    .argument         = {
+                        .original     = {
+                            .text     = arg,
+                            .position = 2,
+                            .size     = arg.size() - 2
+                        },
+                        .modified     = {
+                            .text     = arg,
+                            .position = 2,
+                            .size     = arg.size() - 2
+                        },
+                        .arg_type     = at::long_option
                     },
                     .valid          = vdt::valid,
                     .is_parsed      = true,
@@ -152,15 +155,19 @@ namespace stdr = std::ranges;
 
                 args.emplace_back(name);
 
-                expect            = {
-                    .argument     = {
-                        .original = name,
-                        .modified = name,
-                        .arg_type = at::regular_argument,
-                        .org_pos  = 0,
-                        .org_size = name.size(),
-                        .mod_pos  = 0,
-                        .mod_size = name.size()
+                expect                = {
+                    .argument         = {
+                        .original     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .modified     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .arg_type     = at::regular_argument
                     },
                     .valid          = vdt::valid,
                     .is_parsed      = true,
@@ -187,14 +194,18 @@ namespace stdr = std::ranges;
                 args.emplace_back(arg);
 
                 o::parsed_argument expect = {
-                    .argument     = {
-                        .original = arg,
-                        .modified = arg,
-                        .arg_type = at::long_option,
-                        .org_pos  = 2,
-                        .org_size = arg.size() - 2,
-                        .mod_pos  = 2,
-                        .mod_size = arg.size() - 2
+                    .argument         = {
+                        .original     = {
+                            .text     = arg,
+                            .position = 2,
+                            .size     = arg.size() - 2
+                        },
+                        .modified     = {
+                            .text     = arg,
+                            .position = 2,
+                            .size     = arg.size() - 2
+                        },
+                        .arg_type     = at::long_option
                     },
                     .valid          = vdt::valid,
                     .is_parsed      = true,
@@ -206,15 +217,19 @@ namespace stdr = std::ranges;
 
                 args.emplace_back(name);
 
-                expect            = {
-                    .argument     = {
-                        .original = name,
-                        .modified = name,
-                        .arg_type = at::regular_argument,
-                        .org_pos  = 0,
-                        .org_size = name.size(),
-                        .mod_pos  = 0,
-                        .mod_size = name.size()
+                expect                = {
+                    .argument         = {
+                        .original     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .modified     = {
+                            .text     = name,
+                            .position = 0,
+                            .size     = name.size()
+                        },
+                        .arg_type     = at::regular_argument
                     },
                     .valid          = vdt::valid,
                     .is_parsed      = true,
@@ -241,7 +256,7 @@ namespace stdr = std::ranges;
             test_index++;
 
             std::size_t current_index = 0;
-            std::vector<std::string>         args     = {};
+            std::vector<std::string>        args     = {};
             std::vector<o::parsed_argument> expected = {};
             bool found = false;
             for (auto &subcommand : subcommands)

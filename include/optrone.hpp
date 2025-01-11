@@ -43,6 +43,7 @@
 #include <print>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "alcelin_ansi_escape_codes.hpp"
@@ -362,45 +363,56 @@ enum class variadicity {
 }
 
 /**
- *  @brief  Internally modifies arguments but has original argument intact for
- *          reference.
+ *  @brief  Text with underlined squiggles.
  */
-struct mod_argument {
+struct squiggled_text {
 
     /**
-     *  @brief  Original intact argument.
+     *  @brief  Text string.
      */
-    std::string original;
+    std::string text;
 
     /**
-     *  @brief  Internally modified.
+     *  @brief  Position start for squiggle.
      */
-    std::string modified;
+    std::size_t position;
+
+    /**
+     *  @brief  Length of squiggle.
+     */
+    std::size_t size;
+
+    /**
+     *  @brief  Generate a squiggle line from position and size.
+     *  @return  Squiggle line generated from position and size.
+     */
+    [[nodiscard]] inline constexpr auto squiggle() const
+    {
+        return alcelin::sm::repeat(" ", position)
+             + "^"
+             + alcelin::sm::repeat("~", (size == 0 ? 0 : size - 1));
+    }
+};
+
+/**
+ *  @brief  Command line argument with metadata.
+ */
+struct meta_argument {
+
+    /**
+     *  @brief  Original argument intact.
+     */
+    squiggled_text original;
+
+    /**
+     *  @brief  Modified argument.
+     */
+    squiggled_text modified;
 
     /**
      *  @brief  Type of argument.
      */
     argument_type arg_type;
-
-    /**
-     *  @brief  Resemble position in original.
-     */
-    std::size_t org_pos;
-
-    /**
-     *  @brief  Resemble size in original.
-     */
-    std::size_t org_size;
-
-    /**
-     *  @brief  Resemble position in modified.
-     */
-    std::size_t mod_pos;
-
-    /**
-     *  @brief  Resemble size in modified.
-     */
-    std::size_t mod_size;
 };
 
 /**
@@ -457,10 +469,9 @@ enum class validity {
 struct parsed_argument {
 
     /**
-     *  @brief  Command line argument, intact and internally modified, as a
-     *          reference.
+     *  @brief  Command line argument with metadata.
      */
-    mod_argument argument;
+    meta_argument argument;
 
     /**
      *  @brief  Can contain invalid arguments.

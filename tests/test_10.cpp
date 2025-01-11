@@ -44,8 +44,7 @@
  *  @brief  Test 10: Variadic parameter recognition tests.
  *  @return  Number of errors.
  */
-[[nodiscard]] CT_TESTER_FN(test_10)
-{
+[[nodiscard]] CT_TESTER_FN(test_10) {
     CT_BEGIN;
 
     // Prepare options
@@ -88,7 +87,7 @@
             {
                 test_index++;
 
-                std::vector<std::string>         args     = {};
+                std::vector<std::string>        args     = {};
                 std::vector<o::parsed_argument> expected = {};
 
                 args.emplace_back("--" + options[i]->long_names.front());
@@ -120,14 +119,18 @@
                 }
 
                 expected.emplace_back(o::parsed_argument {
-                    .argument     = {
-                        .original = "--" + options[i]->long_names.front(),
-                        .modified = "--" + options[i]->long_names.front(),
-                        .arg_type = at::long_option,
-                        .org_pos  = 2,
-                        .org_size = options[i]->long_names.front().size(),
-                        .mod_pos  = 2,
-                        .mod_size = options[i]->long_names.front().size()
+                    .argument         = {
+                        .original     = {
+                            .text     = "--" + options[i]->long_names.front(),
+                            .position = 2,
+                            .size     = options[i]->long_names.front().size()
+                        },
+                        .modified     = {
+                            .text     = "--" + options[i]->long_names.front(),
+                            .position = 2,
+                            .size     = options[i]->long_names.front().size()
+                        },
+                        .arg_type     = at::long_option
                     },
                     .valid          = valid,
                     .is_parsed      = true,
@@ -142,14 +145,18 @@
                     for (std::size_t k = 2; k < args.size(); k++)
                     {
                         expected.emplace_back(o::parsed_argument {
-                            .argument     = {
-                                .original = args[k],
-                                .modified = args[k],
-                                .arg_type = at::regular_argument,
-                                .org_pos  = 0,
-                                .org_size = args[k].size(),
-                                .mod_pos  = 0,
-                                .mod_size = args[k].size()
+                            .argument         = {
+                                .original     = {
+                                    .text     = args[k],
+                                    .position = 0,
+                                    .size     = args[k].size()
+                                },
+                                .modified     = {
+                                    .text     = args[k],
+                                    .position = 0,
+                                    .size     = args[k].size()
+                                },
+                                .arg_type     = at::regular_argument
                             },
                             .valid          = vdt::unrecognized_subcommand,
                             .is_parsed      = true,

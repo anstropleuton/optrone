@@ -124,11 +124,19 @@
  *  @brief  Test Optrone.
  *  @return  Zero on success.
  */
-auto main() -> int
+auto main() -> int try
 {
     test_suite suite;
-    suite.pre_run  = default_pre_runner('=', 5);
-    suite.post_run = default_post_runner('=', 5);
+    suite.pre_run = [&](const test *test)
+    {
+        log_file.open(test->function_name + ".log");
+        default_pre_runner('=', 5)(test);
+    };
+    suite.post_run = [&](const test *test, std::size_t errors)
+    {
+        default_post_runner('=', 5)(test, errors);
+        log_file.close();
+    };
     // suite.run_failed = default_run_failed_quitter();
 
     // Scary memory management
@@ -211,27 +219,27 @@ auto main() -> int
         test_12
     });
 
-    std::size_t errors = (std::size_t)-1;
-    try
-    {
-        auto failed_tests = suite.run();
+    auto failed_tests = suite.run();
+    log_file.open("tester.log");
 
-        print_failed_tests(failed_tests);
-        errors = sum_failed_tests_errors(failed_tests);
-    }
-    catch (const std::exception &e)
-    {
-        logln("Exception occurred during test: {}", e.what());
-    }
-    catch (...)
-    {
-        logln("Unknown exception occurred during test");
-    }
+    print_failed_tests(failed_tests);
 
     for (auto &test : suite.tests)
     {
         delete test;
     }
 
-    return errors != 0;
+    return sum_failed_tests_errors(failed_tests) != 0;
+}
+catch (const std::exception &e)
+{
+    log_file.open("tester.log");
+    std::println("Exception occurred during testing: {}", e.what());
+    return 1;
+}
+catch (...)
+{
+    log_file.open("tester.log");
+    std::println("Unknown exception occurred during testing");
+    return 1;
 }

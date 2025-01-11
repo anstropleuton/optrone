@@ -104,19 +104,6 @@ using vdt   = o::validity;
 }
 
 /**
- *  @brief  Convert option template pointer to string.
- *
- *  @param  option_template  Option template pointer.
- *  @return  String representing option template.
- */
-[[nodiscard]] static inline constexpr auto option_ptr_to_string(
-    const o::option_template *option_template
-)
-{
-    return option_to_string(*option_template);
-}
-
-/**
  *  @brief  Convert parsed argument to string.
  *
  *  @param  parsed_argument  Parsed Argument.
@@ -138,16 +125,10 @@ using vdt   = o::validity;
         "  subcommand: {}\n"
         "  values: {}\n",
         o::to_string(parsed_argument.argument.arg_type),
-        parsed_argument.argument.original,
-        " "s * parsed_argument.argument.org_pos + "^"s
-        + "~"s * (parsed_argument.argument.org_size == 0
-                  ? 0
-                  : parsed_argument.argument.org_size - 1),
-        parsed_argument.argument.modified,
-        " "s * parsed_argument.argument.mod_pos + "^"s
-        + "~"s * (parsed_argument.argument.mod_size == 0
-                  ? 0
-                  : parsed_argument.argument.mod_size - 1),
+        parsed_argument.argument.original.text,
+        parsed_argument.argument.original.squiggle(),
+        parsed_argument.argument.modified.text,
+        parsed_argument.argument.modified.squiggle(),
         o::to_string(parsed_argument.valid),
         parsed_argument.is_parsed,
         parsed_argument.ref_option
@@ -205,77 +186,10 @@ struct std::formatter<o::parsed_argument> {
         const o::parsed_argument &parsed_argument, format_context &fc) const
     {
         return std::format_to(fc.out(), "\"{}\" (\"{}\")",
-            parsed_argument.argument.original,
-            parsed_argument.argument.modified);
+            parsed_argument.argument.original.text,
+            parsed_argument.argument.modified.text);
     }
 };
-
-/**
- *  @brief  Compare all values of two parsed arguments.
- *
- *  @param  a  First parsed argument.
- *  @param  b  Second parsed argument.
- *  @return  True if they are equal.
- */
-[[nodiscard]] static inline constexpr auto compare(
-    const o::parsed_argument &a,
-    const o::parsed_argument &b
-)
-{
-    return a.argument.original == b.argument.original
-        && a.argument.modified == b.argument.modified
-        && a.argument.arg_type == b.argument.arg_type
-        && a.argument.org_pos == b.argument.org_pos
-        && a.argument.org_size == b.argument.org_size
-        && a.argument.mod_pos == b.argument.mod_pos
-        && a.argument.mod_size == b.argument.mod_size
-        && a.valid == b.valid
-        && a.is_parsed == b.is_parsed
-        && a.ref_option == b.ref_option
-        && a.ref_subcommand == b.ref_subcommand
-        && a.values == b.values;
-}
-
-/**
- *  @brief  Compare all values of two parsed arguments, ignoring the values
- *          member.
- *
- *  @param  a  First parsed argument.
- *  @param  b  Second parsed argument.
- *  @return  True if they are equal, except the values member.
- */
-[[nodiscard]] static inline constexpr auto compare_no_values(
-    const o::parsed_argument &a,
-    const o::parsed_argument &b
-)
-{
-    return a.argument.original == b.argument.original
-        && a.argument.modified == b.argument.modified
-        && a.argument.arg_type == b.argument.arg_type
-        && a.argument.org_pos == b.argument.org_pos
-        && a.argument.org_size == b.argument.org_size
-        && a.argument.mod_pos == b.argument.mod_pos
-        && a.argument.mod_size == b.argument.mod_size
-        && a.valid == b.valid
-        && a.is_parsed == b.is_parsed
-        && a.ref_option == b.ref_option
-        && a.ref_subcommand == b.ref_subcommand;
-}
-
-/**
- *  @brief  Compare the values member of two parsed arguments.
- *
- *  @param  a  First parsed argument.
- *  @param  b  Second parsed argument.
- *  @return  True if values member of them are equal.
- */
-[[nodiscard]] static inline constexpr auto compare_only_values(
-    const o::parsed_argument &a,
-    const o::parsed_argument &b
-)
-{
-    return a.values == b.values;
-}
 
 /**
  *  @brief  Compare all values of two parsed argument.
@@ -289,74 +203,18 @@ struct std::formatter<o::parsed_argument> {
     const o::parsed_argument &b
 )
 {
-    return compare(a, b);
-}
-
-/**
- *  @brief  Generate combination of indices from @c min_index up to
- *          @c max_index, and run the function.
- *
- *  @tparam  func_type  Type of function.
- *  @tparam  args_type  Type of additional arguments to function.
- *  @param   combo      Current combination of indices.
- *  @param   min_index  Min size for indices (inclusive).
- *  @param   max_index  Max size for indices (exclusive).
- *  @param   depth      Current depth of recursion.
- *  @param   func       Function to call with combination.
- *  @param   args       Additional arguments for function call.
- */
-template<typename func_type, typename ... args_type>
-static inline constexpr auto generate_combo(
-    std::vector<std::size_t> &combo,
-    std::size_t               min_index,
-    std::size_t               max_index,
-    std::size_t               depth,
-    func_type                 func,
-    args_type &&...           args
-)
-{
-    if (depth == 0)
-    {
-        func(combo, args ...);
-        return;
-    }
-
-    for (std::size_t i = min_index; i < max_index; i++)
-    {
-        combo.emplace_back(i);
-        generate_combo(combo, min_index, max_index, depth - 1, func, args ...);
-        combo.pop_back();
-    }
-}
-
-/**
- *  @brief  Generate multiple combination up to @c max_combos of indices from
- *          @c min_index up to @c max_index, and run the function.
- *
- *  @tparam  func_type   Type of function.
- *  @tparam  args_type   Type of additional arguments to function.
- *  @param   min_index   Min size for indices (inclusive).
- *  @param   max_index   Max size for indices (exclusive).
- *  @param   max_combos  Min combination (size) of indices (inclusive).
- *  @param   max_combos  Max combination (size) of indices (exclusive).
- *  @param   func        Function to call with combination.
- *  @param   args        Additional arguments for function call.
- */
-template<typename func_type, typename ... args_type>
-static inline constexpr auto run_combo(
-    std::size_t     min_index,
-    std::size_t     max_index,
-    std::size_t     min_combos,
-    std::size_t     max_combos,
-    func_type       func,
-    args_type &&... args
-)
-{
-    std::vector<std::size_t> combo = {};
-    for (std::size_t i = min_combos; i < max_combos; i++)
-    {
-        generate_combo(combo, min_index, max_index, i, func, args ...);
-    }
+    return a.argument.original.text == b.argument.original.text
+        && a.argument.original.position == b.argument.original.position
+        && a.argument.original.size == b.argument.original.size
+        && a.argument.modified.text == b.argument.modified.text
+        && a.argument.modified.position == b.argument.modified.position
+        && a.argument.modified.size == b.argument.modified.size
+        && a.argument.arg_type == b.argument.arg_type
+        && a.valid == b.valid
+        && a.is_parsed == b.is_parsed
+        && a.ref_option == b.ref_option
+        && a.ref_subcommand == b.ref_subcommand
+        && a.values == b.values;
 }
 
 /**

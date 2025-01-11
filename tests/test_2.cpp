@@ -44,8 +44,7 @@
  *  @brief  Test 2: Subcommand recognition tests.
  *  @return  Number of errors.
  */
-[[nodiscard]] CT_TESTER_FN(test_2)
-{
+[[nodiscard]] CT_TESTER_FN(test_2) {
     CT_BEGIN;
 
     // Multiplied by 2
@@ -99,7 +98,7 @@
             test_index++;
 
             std::size_t index = i;
-            std::vector<std::string>         args     = {};
+            std::vector<std::string>        args     = {};
             std::vector<o::parsed_argument> expected = {};
             std::size_t subcommand_index = (std::size_t)-1;
             std::size_t name_index       = (std::size_t)-1;
@@ -138,14 +137,18 @@
             args.emplace_back(name);
 
             o::parsed_argument expect = {
-                .argument     = {
-                    .original = name,
-                    .modified = name,
-                    .arg_type = at::regular_argument,
-                    .org_pos  = 0,
-                    .org_size = name.size(),
-                    .mod_pos  = 0,
-                    .mod_size = name.size()
+                .argument         = {
+                    .original     = {
+                        .text     = name,
+                        .position = 0,
+                        .size     = name.size()
+                    },
+                    .modified     = {
+                        .text     = name,
+                        .position = 0,
+                        .size     = name.size()
+                    },
+                    .arg_type     = at::regular_argument
                 },
                 .valid          = vdt::valid,
                 .is_parsed      = true,
