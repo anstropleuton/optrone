@@ -6,3 +6,6 @@ Optrone is now production ready! (*hopefully*)
 Few CMake files I use in cmake/ folder are mostly reused throughout my project, so rename them to have generic name and configure them with proper name in CMakeLists.txt itself.
 Also fix the uninstall target.
 Also added [dependency helpers](cmake/depman.cmake). And removed submodules.
+
+## v1.0.1.0 - Refactor command line argument metadata structure
+Title says it all.
