@@ -1,4 +1,4 @@
-include("${CMAKE_SOURCE_DIR}/cmake/subdep.cmake")
+include("${OPTRONE_SOURCE_DIR}/cmake/subdep.cmake")
 
 subdep_add(doctest)
 
