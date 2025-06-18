@@ -196,7 +196,7 @@ static std::string build_params(const std::vector<std::string> &params, const st
 
         oss << style(params[i], customizer.template_saec);
 
-        if (is_optional)
+        if (is_optional && !defaults[default_index].empty())
         {
             oss << "=" << style(defaults[default_index], customizer.template_saec);
         }

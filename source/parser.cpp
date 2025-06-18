@@ -26,13 +26,6 @@ using option_vec     = std::vector<option_ptr>;
 using subcommand_ptr = std::shared_ptr<optrone::subcommand_template>;
 using subcommand_vec = std::vector<subcommand_ptr>;
 
-static std::string str_to_lower(std::string_view str)
-{
-    std::string result(str);
-    std::transform(result.begin(), result.end(), result.begin(), tolower);
-    return result;
-}
-
 /// Determine the token type from the argument.
 static optrone::token::token_type determine_type(std::string_view value)
 {
@@ -40,6 +33,94 @@ static optrone::token::token_type determine_type(std::string_view value)
     if (value.starts_with("--")) return optrone::token::token_type::long_option;
     if (value.starts_with("-")) return optrone::token::token_type::short_option;
     return optrone::token::token_type::regular;
+}
+
+std::vector<optrone::token> optrone::tokenize(const std::vector<std::string> &args)
+{
+    std::vector<token> tokens;
+    tokens.resize(args.size());
+    for (std::size_t i = 0; i < args.size(); i++)
+    {
+        tokens[i] = { args[i], determine_type(args[i]) };
+    }
+
+    // 1. Split at `=` or `:` based on whether it is an option or a switch.
+    for (std::size_t i = 0; i < tokens.size(); i++)
+    {
+        token      &tok = tokens[i];
+        std::size_t pos = (std::size_t) -1;
+        if (tok.type == token::token_type::long_option ||
+            tok.type == token::token_type::short_option)
+        {
+            pos = tok.value.find('=');
+        }
+        else if (tok.type == token::token_type::switch_option)
+        {
+            pos = tok.value.find(':');
+        }
+
+        if (pos != (std::size_t) -1)
+        {
+            token first  = { tok.value.substr(0, pos), tok.type };
+            token second = { tok.value.substr(pos + 1), token::token_type::regular }; // Treat as regular arg
+            tok          = first;
+            tokens.emplace(tokens.begin() + i + 1, second);
+            i++; // Skip processing second, as we know it is fixed to be regular
+        }
+    }
+
+    // 2. Split `-abc` as three tokens: `-a`, `-b` and `-c`.
+    for (std::size_t i = 0; i < tokens.size(); i++)
+    {
+        token &tok = tokens[i];
+        if (tok.type == token::token_type::short_option && tok.value.size() > 2)
+        {
+            std::string characters = tok.value.substr(2);
+            tok.value              = std::string("-") + tok.value[1];
+
+            for (std::size_t j = 0; j < characters.size(); j++)
+            {
+                tokens.emplace(tokens.begin() + i + j + 1, std::string("-") + characters[j], token::token_type::short_option);
+            }
+
+            i += characters.size(); // Skip processing the already split args.
+        }
+    }
+
+    // Adjust text range of each token
+    std::size_t prev = 0;
+    for (token &tok : tokens)
+    {
+        tok.range.begin   = prev;
+        tok.range.pointer = tok.range.begin;
+        tok.range.length  = tok.value.size();
+        prev += tok.range.length + 1;
+    }
+
+    return tokens;
+}
+
+std::string optrone::construct_command_line(const std::vector<token> &tokens)
+{
+    std::string command_line = "";
+    for (const token &tok : tokens)
+    {
+        command_line += " " + tok.value;
+    }
+
+    if (!command_line.empty())
+    {
+        command_line = command_line.substr(1);
+    }
+
+    return command_line;
+}
+
+static std::string str_to_lower(std::string_view str)
+{
+    std::string result(str);
+    std::transform(result.begin(), result.end(), result.begin(), tolower);
+    return result;
 }
 
 /// Validates an option, throws if invalid.
@@ -64,9 +145,9 @@ static void validate_option(option_ptr option)
         {
             throw std::invalid_argument("Long name cannot contain '=' or ':'");
         }
-        if (long_name.starts_with('-'))
+        if (long_name.starts_with('-') || long_name.starts_with('/'))
         {
-            throw std::invalid_argument("Long name cannot start with '-'");
+            throw std::invalid_argument("Long name cannot start with '-' or '/'");
         }
     }
 
@@ -76,9 +157,9 @@ static void validate_option(option_ptr option)
         {
             throw std::invalid_argument("Short name must be lowercase");
         }
-        if (short_name == '-' || short_name == '=' || short_name == ':')
+        if (short_name == '-' || short_name == '/' || short_name == '=' || short_name == ':')
         {
-            throw std::invalid_argument("Short name cannot be '-', '=' or ':'");
+            throw std::invalid_argument("Short name cannot be '-', '/', '=' or ':'");
         }
     }
 
@@ -106,6 +187,14 @@ static void validate_subcommand(subcommand_ptr subcommand)
         if (name != str_to_lower(name))
         {
             throw std::invalid_argument("Subcommand name must be lowercase");
+        }
+        if (name.contains(':') || name.contains('='))
+        {
+            throw std::invalid_argument("Subcommand name cannot contain '=' or ':'");
+        }
+        if (name.starts_with('-') || name.starts_with('/'))
+        {
+            throw std::invalid_argument("Subcommand name cannot start with '-' or '/'");
         }
     }
 
@@ -301,84 +390,15 @@ std::vector<optrone::parsed_argument> optrone::parse_arguments(
     std::vector<std::shared_ptr<option_template>>     options,
     std::vector<std::shared_ptr<subcommand_template>> subcommands)
 {
-    std::vector<parsed_argument> result;
     validate_templates(options, subcommands);
 
-    // Tokenize the arguments.
-    std::vector<token> tokens;
-    tokens.resize(args.size());
-    for (std::size_t i = 0; i < args.size(); i++)
-    {
-        tokens[i] = { args[i], determine_type(args[i]) };
-    }
+    std::vector<token> tokens   = tokenize(args);
+    std::string        cmd_line = construct_command_line(tokens);
 
-    // 1. Split at `=` or `:` based on whether it is an option or a switch.
-    for (std::size_t i = 0; i < tokens.size(); i++)
-    {
-        token      &tok = tokens[i];
-        std::size_t pos = (std::size_t) -1;
-        if (tok.type == token::token_type::long_option ||
-            tok.type == token::token_type::short_option)
-        {
-            pos = tok.value.find('=');
-        }
-        else if (tok.type == token::token_type::switch_option)
-        {
-            pos = tok.value.find(':');
-        }
-
-        if (pos != (std::size_t) -1)
-        {
-            token first  = { tok.value.substr(0, pos), tok.type };
-            token second = { tok.value.substr(pos + 1), token::token_type::regular }; // Treat as regular arg
-            tok          = first;
-            tokens.emplace(tokens.begin() + i + 1, second);
-            i++; // Skip processing second, as we know it is fixed to be regular
-        }
-    }
-
-    // 2. Split `-abc` as three tokens: `-a`, `-b` and `-c`.
-    for (std::size_t i = 0; i < tokens.size(); i++)
-    {
-        token &tok = tokens[i];
-        if (tok.type == token::token_type::short_option && tok.value.size() > 2)
-        {
-            std::string characters = tok.value.substr(2);
-            tok.value              = std::string("-") + tok.value[1];
-
-            for (std::size_t j = 0; j < characters.size(); j++)
-            {
-                tokens.emplace(tokens.begin() + i + j + 1, std::string("-") + characters[j], token::token_type::short_option);
-            }
-
-            i += characters.size(); // Skip processing the already split args.
-        }
-    }
-
-    // Construct a command line from the tokens
-    std::string cmd_line = "";
-    for (const token &tok : tokens)
-    {
-        cmd_line += " " + tok.value;
-    }
-
-    if (!cmd_line.empty())
-    {
-        cmd_line = cmd_line.substr(1);
-    }
-
-    // Adjust text range of each token
-    std::size_t prev = 0;
-    for (token &tok : tokens)
-    {
-        tok.range.begin   = prev;
-        tok.range.pointer = tok.range.begin;
-        tok.range.length  = tok.value.size();
-        prev += tok.range.length + 1;
-    }
+    std::shared_ptr<subcommand_template> nested = nullptr; // Currently nested subcommand to match for, or match global if not found
 
     // Parse all tokens
-    std::shared_ptr<subcommand_template> nested = nullptr; // Currently nested subcommand to match for, or match global if not found
+    std::vector<parsed_argument> result;
     for (std::size_t index = 0; index < tokens.size();)
     {
         token tok = tokens[index];

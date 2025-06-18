@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(optrone
     DESCRIPTION "Optrone is a feature rich command-line argument parser written in modern C++."
-    VERSION 0.0.1
+    VERSION 1.0.0
     LANGUAGES CXX)
 
 set(OPTRONE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")

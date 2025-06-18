@@ -165,7 +165,7 @@ std::vector<task> read_tasks(const std::string &filename)
 }
 
 /// Write all the tasks to a file.
-void write_tasks(const std::string &filename, const std::vector<task> &tasks)
+void write_tasks(const std::vector<task> &tasks, const std::string &filename)
 {
     std::ofstream ofile(filename);
     if (!ofile)
@@ -187,7 +187,7 @@ void write_tasks(const std::string &filename, const std::vector<task> &tasks)
 // --help
 auto help_option = std::make_shared<optrone::option_template>(optrone::option_template{
     .description = "Show help message.",
-    .short_names = { 'h' },
+    .short_names = { 'h', '?' },
     .long_names  = { "help" },
 });
 
@@ -231,7 +231,6 @@ auto auto_remove_subcommand = std::make_shared<optrone::subcommand_template>(opt
 // list --include-notes
 auto list_include_notes_option = std::make_shared<optrone::option_template>(optrone::option_template{
     .description = "Sort tasks with notes included",
-    .short_names = { 'n' },
     .long_names  = { "include-notes" },
 });
 
@@ -403,7 +402,8 @@ std::unordered_set<std::string>                                                 
 std::function<bool(const std::tuple<long, task> &a, const std::tuple<long, task> &b)>               list_sort_compare;
 std::function<bool(const std::tuple<long, std::string> &a, const std::tuple<long, std::string> &b)> notes_list_sort_compare;
 
-/// Handle `--help` option.
+// Handlers
+
 void handle_help_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -412,7 +412,6 @@ void handle_help_option(const std::vector<optrone::parsed_argument> &args, std::
     std::exit(0);
 }
 
-/// Handle `--version` option.
 void handle_version_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -424,7 +423,6 @@ void handle_version_option(const std::vector<optrone::parsed_argument> &args, st
     std::exit(0);
 }
 
-/// Handle `--file` option.
 void handle_file_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -432,31 +430,36 @@ void handle_file_option(const std::vector<optrone::parsed_argument> &args, std::
     tasks_file = arg.values[0];
 }
 
-/// Handle `add` subcommand.
 void handle_add_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks.emplace_back(arg.values[0]);
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `remove` subcommand.
 void handle_remove_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks = filter_out(tasks, get_indices(arg.values));
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `auto-remove` subcommand.
 void handle_auto_remove_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks = tasks | std::views::filter([](const task &task) { return !task.done; }) | std::ranges::to<std::vector>();
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `list --filter` option.
 void handle_list_filter_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -464,7 +467,6 @@ void handle_list_filter_option(const std::vector<optrone::parsed_argument> &args
     list_filter_tags = std::unordered_set(arg.values.begin(), arg.values.end());
 }
 
-/// Handle `list --include-notes` option.
 void handle_list_include_notes_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -472,7 +474,6 @@ void handle_list_include_notes_option(const std::vector<optrone::parsed_argument
     list_include_notes = true;
 }
 
-/// Handle `list --sort` option.
 void handle_list_sort_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -539,7 +540,6 @@ void handle_list_sort_option(const std::vector<optrone::parsed_argument> &args, 
     }
 }
 
-/// Handle `list` subcommand.
 void handle_list_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -606,49 +606,60 @@ void handle_list_subcommand(const std::vector<optrone::parsed_argument> &args, s
     }
 }
 
-/// Handle `done` subcommand.
 void handle_done_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
     for (const std::string &value : arg.values)
     {
-        std::size_t index    = std::stoul(value);
+        std::size_t index = std::stoul(value);
+
+        tasks = read_tasks(tasks_file);
+        write_tasks(tasks, tasks_file + ".bak");
         tasks.at(index).done = true;
+        write_tasks(tasks, tasks_file);
     }
 }
 
-/// Handle `undo` subcommand.
 void handle_undo_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
     for (const std::string &value : arg.values)
     {
-        std::size_t index    = std::stoul(value);
+        std::size_t index = std::stoul(value);
+
+        tasks = read_tasks(tasks_file);
+        write_tasks(tasks, tasks_file + ".bak");
         tasks.at(index).done = false;
+        write_tasks(tasks, tasks_file);
     }
 }
 
-/// Handle `edit text` subcommand.
 void handle_edit_text_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
-    std::size_t index    = std::stoul(arg.values[0]);
+    std::size_t index = std::stoul(arg.values[0]);
+
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks.at(index).text = arg.values[1];
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `edit priority` subcommand.
 void handle_edit_priority_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
-    std::size_t index        = std::stoul(arg.values[0]);
+    std::size_t index = std::stoul(arg.values[0]);
+
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks.at(index).priority = std::stoul(arg.values[1]);
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `edit` subcommand.
 void handle_edit_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     i++; // Skip 'edit'
@@ -673,26 +684,31 @@ void handle_edit_subcommand(const std::vector<optrone::parsed_argument> &args, s
     }
 }
 
-/// Handle `notes add` subcommand.
 void handle_notes_add_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
     std::size_t index = std::stoul(arg.values[0]);
+
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks.at(index).notes.insert(tasks.at(index).notes.end(), arg.values.begin() + 1, arg.values.end());
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `notes remove` subcommand.
 void handle_notes_remove_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
-    std::size_t task_index     = std::stoul(arg.values[0]);
-    auto        note_indices   = get_indices(std::vector(arg.values.begin() + 1, arg.values.end())); // Exclude first value (task index)
+    std::size_t task_index   = std::stoul(arg.values[0]);
+    auto        note_indices = get_indices(std::vector(arg.values.begin() + 1, arg.values.end())); // Exclude first value (task index)
+
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks.at(task_index).notes = filter_out(tasks.at(task_index).notes, note_indices);
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `notes list --sort` option.
 void handle_notes_list_sort_option(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -721,7 +737,6 @@ void handle_notes_list_sort_option(const std::vector<optrone::parsed_argument> &
     }
 }
 
-/// Handle `notes list` subcommand.
 void handle_notes_list_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -745,7 +760,8 @@ void handle_notes_list_subcommand(const std::vector<optrone::parsed_argument> &a
     for (const std::string &value : arg.values)
     {
         std::size_t task_index = std::stoul(value);
-        auto        list_notes = tasks.at(task_index).notes | std::views::enumerate | std::ranges::to<std::vector>();
+        tasks                  = read_tasks(tasks_file);
+        auto list_notes        = tasks.at(task_index).notes | std::views::enumerate | std::ranges::to<std::vector>();
 
         // Sort the notes
         if (notes_list_sort_compare)
@@ -763,7 +779,6 @@ void handle_notes_list_subcommand(const std::vector<optrone::parsed_argument> &a
     }
 }
 
-/// Handle `notes` subcommand.
 void handle_notes_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     i++; // Skip 'notes'
@@ -793,16 +808,18 @@ void handle_notes_subcommand(const std::vector<optrone::parsed_argument> &args, 
     }
 }
 
-/// Handle `tags add` subcommand.
 void handle_tags_add_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
 
     std::size_t index = std::stoul(arg.values[0]);
+
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
     tasks.at(index).tags.insert(arg.values.begin() + 1, arg.values.end());
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `tags remove` subcommand.
 void handle_tags_remove_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -812,15 +829,18 @@ void handle_tags_remove_subcommand(const std::vector<optrone::parsed_argument> &
     // List of tags to remove
     std::unordered_set tags_to_remove(arg.values.begin() + 1, arg.values.end()); // Exclude first value (task index)
 
+    tasks = read_tasks(tasks_file);
+    write_tasks(tasks, tasks_file + ".bak");
+
     // Construct new tags list by taking the set difference
     std::unordered_set<std::string> new_tags;
     std::ranges::set_difference(tasks.at(task_index).tags, tags_to_remove, std::inserter(new_tags, new_tags.begin()));
 
     // Assign new tags list back
     tasks.at(task_index).tags = new_tags;
+    write_tasks(tasks, tasks_file);
 }
 
-/// Handle `tags list` subcommand.
 void handle_tags_list_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     const optrone::parsed_argument &arg = args[i++];
@@ -828,6 +848,7 @@ void handle_tags_list_subcommand(const std::vector<optrone::parsed_argument> &ar
     for (const std::string &value : arg.values)
     {
         std::size_t task_index = std::stoul(value);
+        tasks                  = read_tasks(tasks_file);
 
         std::println("Task {}: {}", task_index, tasks.at(task_index).text);
         for (const std::string &tag : tasks.at(task_index).tags)
@@ -837,7 +858,6 @@ void handle_tags_list_subcommand(const std::vector<optrone::parsed_argument> &ar
     }
 }
 
-/// Handle `tags` subcommand.
 void handle_tags_subcommand(const std::vector<optrone::parsed_argument> &args, std::size_t &i)
 {
     i++; // Skip 'tags'

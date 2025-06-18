@@ -4,6 +4,7 @@ subdep_add(doctest)
 
 set(OPTRONE_TESTS
     basic
+    error
 )
 
 foreach(TEST ${OPTRONE_TESTS})

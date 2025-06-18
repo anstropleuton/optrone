@@ -1,7 +1,6 @@
-# v0.0.1
+# v1.0.0
 
-Pending testing...
+## Initial Release
 
-Testing is the most boring part for me...
+This release is the first release of the Optrone argument parser.
 
-I'll do it LaTeR™

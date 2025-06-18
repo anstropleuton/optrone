@@ -42,6 +42,12 @@ struct parsed_argument {
     std::vector<std::string>           values;         ///< Values for parameters (including defaults).
 };
 
+/// Tokenize the arguments.
+std::vector<token> tokenize(const std::vector<std::string> &args);
+
+/// Reconstruct the command-line from tokens.
+std::string construct_command_line(const std::vector<token> &tokens);
+
 /// Throws if templates are invalid.
 /// @see parse_arguments for list of exceptions.
 void validate_templates(
@@ -53,6 +59,8 @@ void validate_templates(
 /// @exception std::invalid_argument Thrown in the following cases:
 /// - No names are specified in a template.
 /// - Names are not lowercase.
+/// - Names contains `=` or `:`.
+/// - Names starts with `-` or `/`.
 /// - Long name is less than 2 characters.
 /// - Number of default values exceed number of declared parameters.
 /// - Mutually exclusive features are used together.

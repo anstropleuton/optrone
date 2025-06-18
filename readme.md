@@ -1,7 +1,7 @@
 # Optrone Argument Parser
 [![Uses C++23](https://img.shields.io/badge/C++-23-blue.svg)](https://en.cppreference.com/w/cpp)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](license.md)
-[![Latest Version v0.0.1](https://img.shields.io/badge/Latest-v0.0.1-yellow.svg)](https://github.com/anstropleuton/optrone/releases/latest)
+[![Latest Version v1.0.0](https://img.shields.io/badge/Latest-v1.0.0-yellow.svg)](https://github.com/anstropleuton/optrone/releases/latest)
 
 **Optrone** is a lightweight argument parser written in modern C++. It has **no dependencies\*, simple usage and is powerful**.
 
