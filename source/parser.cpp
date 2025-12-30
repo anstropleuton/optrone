@@ -48,7 +48,7 @@ std::vector<optrone::token> optrone::tokenize(const std::vector<std::string> &ar
     for (std::size_t i = 0; i < tokens.size(); i++)
     {
         token      &tok = tokens[i];
-        std::size_t pos = (std::size_t) -1;
+        std::size_t pos = std::string::npos;
         if (tok.type == token::token_type::long_option ||
             tok.type == token::token_type::short_option)
         {
@@ -59,7 +59,7 @@ std::vector<optrone::token> optrone::tokenize(const std::vector<std::string> &ar
             pos = tok.value.find(':');
         }
 
-        if (pos != (std::size_t) -1)
+        if (pos != std::string::npos)
         {
             token first  = { tok.value.substr(0, pos), tok.type };
             token second = { tok.value.substr(pos + 1), token::token_type::regular }; // Treat as regular arg
@@ -388,14 +388,18 @@ static std::vector<std::string> collect_values(
 std::vector<optrone::parsed_argument> optrone::parse_arguments(
     const std::vector<std::string>                   &args,
     std::vector<std::shared_ptr<option_template>>     options,
-    std::vector<std::shared_ptr<subcommand_template>> subcommands)
+    std::vector<std::shared_ptr<subcommand_template>> subcommands,
+    const std::vector<std::string>                    global_params,
+    const std::vector<std::string>                    global_defaults,
+    bool                                              global_variadic)
 {
     validate_templates(options, subcommands);
 
     std::vector<token> tokens   = tokenize(args);
     std::string        cmd_line = construct_command_line(tokens);
 
-    std::shared_ptr<subcommand_template> nested = nullptr; // Currently nested subcommand to match for, or match global if not found
+    std::shared_ptr<subcommand_template> nested              = nullptr; // Currently nested subcommand to match for, or match global if not found
+    std::size_t                          global_values_count = 0;       // NUmber of values provided for global parameters
 
     // Parse all tokens
     std::vector<parsed_argument> result;
@@ -420,7 +424,17 @@ std::vector<optrone::parsed_argument> optrone::parse_arguments(
 
             if (!matched)
             {
-                throw argument_error("Unrecognized subcommand", cmd_line, tok.range);
+                if (global_values_count < global_params.size() || global_variadic)
+                {
+                    result.push_back({ {}, {}, { tok.value }, true });
+                    global_values_count++;
+                    index++;
+                    continue;
+                }
+                else
+                {
+                    throw argument_error("Unrecognized subcommand", cmd_line, tok.range);
+                }
             }
 
             index++;
@@ -465,6 +479,18 @@ std::vector<optrone::parsed_argument> optrone::parse_arguments(
         }
         else
             index++;
+    }
+
+    // Add remaining global default values of parameters
+    std::size_t first = global_values_count - global_params.size() + global_defaults.size();
+    std::size_t last  = global_defaults.size();
+    if (first < last)
+    {
+        auto to_add = std::vector(global_defaults.begin() + first, global_defaults.begin() + last);
+        for (std::string add : to_add)
+        {
+            result.push_back({ {}, {}, { add }, true });
+        }
     }
 
     return result;

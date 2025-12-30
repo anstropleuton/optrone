@@ -1,7 +1,8 @@
 # Optrone Argument Parser
+
 [![Uses C++23](https://img.shields.io/badge/C++-23-blue.svg)](https://en.cppreference.com/w/cpp)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](license.md)
-[![Latest Version v1.0.0](https://img.shields.io/badge/Latest-v1.0.0-yellow.svg)](https://github.com/anstropleuton/optrone/releases/latest)
+[![Latest Version v1.1.0](https://img.shields.io/badge/Latest-v1.1.0-yellow.svg)](https://github.com/anstropleuton/optrone/releases/latest)
 
 **Optrone** is a lightweight argument parser written in modern C++. It has **no dependencies\*, simple usage and is powerful**.
 
@@ -22,20 +23,27 @@ Optrone **does not insist** that the command-line arguments needs to come from a
 # Building
 
 - Clone the repository
+
 ```bash
 git clone https://github.com/anstropleuton/optrone.git
 ```
+
 - Create a build directory
+
 ```bash
 mkdir build
 cd build
 ```
+
 - Build the project
+
 ```bash
 cmake ..
 cmake --build . --config Release
 ```
+
 - Install the project (optional; UNIX-like systems)
+
 ```bash
 sudo cmake --install . --config Release
 ```
@@ -43,6 +51,7 @@ sudo cmake --install . --config Release
 # Quick-Start Example
 
 If you are ready to dive into the APIs, add your project as a subdirectory in your CMakeLists.txt:
+
 ```cmake
 add_subdirectory(optrone)
 ```
@@ -293,6 +302,7 @@ For other usage examples, including customizing functions or operators, see the 
 # Features
 
 **Parsing features**:
+
 - POSIX-style options:
   - Long option: `--option`.
   - Short option: `-s` (`-abc` will be split up into `-a`, `-b` and `-c`).
@@ -308,15 +318,20 @@ For other usage examples, including customizing functions or operators, see the 
 - Default values for parameters (right-anchored).
 - Variadic parameters: `--option arg1 arg2 ...` (zero or more).
 - Help-message generation: Provides the complete and fairly customizable help-message generation for all the provided templates, including nested templates.
+- Application-wide global parameters support:
+  - `./program value-1 value-2`.
+  - With default value for parameters (right-anchored).
+  - With variadic parameters: `./program value-1 value-2 ...` (zero or more).
 
 **Other features**:
+
 - **Error Reporting**: Parsing arguments can throw `argument_error` exception which contains information about the error, along with location of the error within a [reconstructed command-line](#reconstructed-command-line), such as invalid option or insufficient parameters provided, etc.
 
 # Anti-features
 
 - Parameter type specification or validation: **Not supported**. These are the responsibilities of the business logic, not parsing arguments.
 - Generate documentations: **Not available**. Help message generation is provided, though it is only focused on the templates, not the overall application documentation.
-- Shell auto-completions: **Not planned**. Auto-completions are, well, specific to shells. You could try using the 
+- Shell auto-completions: **Not planned**. Auto-completions are, well, specific to shells. You could try using the
 
 # Limitations
 
@@ -330,7 +345,6 @@ There are several limitations put in place to guarantee deterministic behavior. 
 # Future plans/considerations/TODOs
 
 - Upgrade the error reporting be non-blocking, i.e., it will collect all the errors and emit them at once, as opposed to throwing at the first instance of an error.
-- Allow global parameters, default values and variadicity setting. This allows program commands itself to act as a template: `./program value-1 value-2 ...` rather than `./program --option value-1 value-2 ...` or `./program subcommand value-1 value-2 ...`.
 - Relax validation (?)
   - Is it good idea to throw for unsuspecting but invalid templates (e.g., uppercase letters being used in names), or
   - Is it good idea to internally modify them for a less-agressive validation?
@@ -367,6 +381,7 @@ Note that even the reconstructed command-line **differs from the arguments** (`a
 # More Examples
 
 There are a few examples that I have created to demonstrate Optrone.
+
 - [taskmgr.cpp](example/taskmgr.cpp): Demonstrates **general usage** of Optrone. This example implements a simple CLI Task Manager.
 
 # Contributing

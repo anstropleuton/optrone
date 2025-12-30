@@ -6,3 +6,6 @@ build/
 
 # Visual Studio Code Files
 .vscode/
+
+# Zed Editor Files
+.zed/

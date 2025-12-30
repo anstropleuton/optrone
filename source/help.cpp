@@ -47,13 +47,13 @@ static std::vector<std::string> wrap_string(std::string_view string, std::size_t
         std::string_view substr = string.substr(0, width);
         std::size_t      pos    = substr.find_first_of(newlines);
 
-        if (pos == (std::size_t) -1)
+        if (pos == std::string::npos)
         {
             pos = substr.find_last_of(delims);
         }
 
         bool delim_found = true;
-        if (pos == (std::size_t) -1)
+        if (pos == std::string::npos)
         {
             pos         = width;
             delim_found = false;

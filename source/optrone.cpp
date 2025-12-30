@@ -240,10 +240,7 @@ try
     std::ostringstream oss;
     oss << (begin_row + 1) << ":" << begin_col << "-" << (end_row + 1) << ":" << end_col << ": " << message << std::endl
         << preview_range(cmd_line, range);
-    string = oss.str();
-
-    formatted_string   = format_saec(string);
-    unformatted_string = format_saec(string, true);
+    message_with_preview = oss.str();
 }
 catch (const std::exception &e)
 {

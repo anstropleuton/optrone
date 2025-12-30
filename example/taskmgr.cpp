@@ -900,7 +900,7 @@ int main(int argc, char *argv[])
     catch (const optrone::argument_error &error)
     {
         // Error parsing due to invalid command-line argument
-        std::print("{}", error.formatted_string); // Display error with preview
+        std::print("{}", optrone::format_saec(error.message_with_preview)); // Display error with preview
         return 1;
     }
     catch (const std::exception &error)

@@ -216,3 +216,35 @@ TEST_CASE("Nested options and subcommand parsing")
     CHECK(parsed_args[0].ref_subcommand.lock() == subcommand);
     CHECK(parsed_args[1].ref_option.lock() == nested_option);
 }
+
+TEST_CASE("Global parameters testing")
+{
+    std::vector<std::string> params   = { "param-1", "param-2", "param-3" };
+    std::vector<std::string> defaults = { "default-1", "default-2", "default-3" };
+
+    // Parameters and defautls
+
+    std::vector<std::string> values = { "value-1", "value-2", "value-3" };
+
+    for (std::size_t i : std::views::iota(0zu, params.size()))
+    {
+        auto provided_values = values | std::views::take(i) | std::ranges::to<std::vector>();
+        auto default_values  = defaults | std::views::drop(i) | std::ranges::to<std::vector>();
+        auto expected_values = std::vector{ provided_values, default_values } | std::views::join | std::ranges::to<std::vector>();
+
+        SUBCASE(std::format("Values: {}", provided_values | std::ranges::views::join_with(' ') | std::ranges::to<std::string>()).c_str())
+        {
+            std::vector<std::string> args = provided_values;
+
+            auto parsed_args = optrone::parse_arguments(args, {}, {}, params, defaults);
+
+            REQUIRE(parsed_args.size() == expected_values.size());
+            for (std::size_t j : std::views::iota(0zu, expected_values.size()))
+            {
+                REQUIRE(parsed_args[j].values.size() == 1);
+                CHECK(parsed_args[j].is_global);
+                CHECK(parsed_args[j].values[0] == expected_values[j]);
+            }
+        }
+    }
+}

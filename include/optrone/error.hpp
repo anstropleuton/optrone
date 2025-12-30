@@ -121,13 +121,11 @@ std::string preview_range(
 /// Error when parsing command-line arguments, also contains details for error
 /// and range of the error in the command line.
 struct argument_error : std::exception {
-    std::string message;  ///< Message of the error.
+    std::string message;  ///< The exception message.
     std::string cmd_line; ///< The command line constructed from the list of arguments (approx).
     text_range  range;    ///< Range in the args that caused the error.
 
-    std::string string;             ///< Stores the message and preview (includes SAEC).
-    std::string formatted_string;   ///< Replaces SAECs with actual AECs.
-    std::string unformatted_string; ///< Removes SAECs from formatted string.
+    std::string message_with_preview; ///< Stores the message and preview (includes SAEC).
 
     /// Initializes the exception. Also creates the formatted message.
     argument_error(std::string_view message, std::string_view cmd_line, text_range range);
@@ -135,14 +133,13 @@ struct argument_error : std::exception {
     /// Obtain the error message (unformatted).
     const char *what() const noexcept override
     {
-        // Something may have went wrong, return only the message
-        if (string.empty())
+        // Something went wrong, just return message (unformatted).
+        if (message_with_preview.empty())
         {
-            // Note: It will also contain raw SAECs.
             return message.c_str();
         }
 
-        return unformatted_string.c_str();
+        return message_with_preview.c_str();
     }
 };
 

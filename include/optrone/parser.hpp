@@ -37,9 +37,10 @@ struct token {
 /// Arguments parsed from command-line along with any parameters or default
 /// values.
 struct parsed_argument {
-    std::weak_ptr<option_template>     ref_option;     ///< Option associated with this argument.
-    std::weak_ptr<subcommand_template> ref_subcommand; ///< Subcommand associated with this argument.
-    std::vector<std::string>           values;         ///< Values for parameters (including defaults).
+    std::weak_ptr<option_template>     ref_option;        ///< Option associated with this argument.
+    std::weak_ptr<subcommand_template> ref_subcommand;    ///< Subcommand associated with this argument.
+    std::vector<std::string>           values;            ///< Values for parameters (including defaults).
+    bool                               is_global = false; ///< Whether the value is from a global parameter.
 };
 
 /// Tokenize the arguments.
@@ -70,6 +71,9 @@ void validate_templates(
 std::vector<parsed_argument> parse_arguments(
     const std::vector<std::string>                   &args,
     std::vector<std::shared_ptr<option_template>>     options,
-    std::vector<std::shared_ptr<subcommand_template>> subcommands);
+    std::vector<std::shared_ptr<subcommand_template>> subcommands,
+    const std::vector<std::string>                    global_params   = {},
+    const std::vector<std::string>                    global_defaults = {},
+    bool                                              global_variadic = false);
 
 } // namespace optrone
